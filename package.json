@@ -15,11 +15,13 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "knip": "knip"
+    "knip": "knip",
+    "gen:api": "orval"
   },
   "dependencies": {
     "@clerk/react": "^6.16.1",
     "@tailwindcss/vite": "^4.3.2",
+    "@tanstack/react-query": "^5.103.1",
     "@tanstack/react-router": "^1.170.17",
     "@tanstack/router-plugin": "^1.168.19",
     "react": "^19.2.7",
@@ -33,6 +35,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "eslint-plugin-react-you-might-not-need-an-effect": "^1.0.1",
     "knip": "^6.26.0",
+    "orval": "^8.33.0",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
     "oxlint-tsgolint": "^0.24.0",
