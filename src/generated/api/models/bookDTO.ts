@@ -7,10 +7,10 @@
 import type { BarcodeDTO } from "./barcodeDTO.ts";
 
 export interface BookDTO {
-  isbn?: string;
-  title?: string;
-  authors?: string[];
-  url?: string;
-  sourceName?: string;
-  barcodes?: BarcodeDTO[];
+  isbn: string;
+  title: string;
+  authors: string[];
+  url: string;
+  sourceName: string;
+  barcodes: BarcodeDTO[];
 }

@@ -6,11 +6,11 @@
  */
 
 export interface PurgatoryBookDTO {
-  id?: number;
-  invalidIsbn?: string;
-  title?: string;
-  authors?: string[];
-  url?: string;
-  sourceName?: string;
-  createdAt?: string;
+  id: number;
+  invalidIsbn: string;
+  title: string;
+  authors: string[];
+  url: string;
+  sourceName: string;
+  createdAt: string;
 }

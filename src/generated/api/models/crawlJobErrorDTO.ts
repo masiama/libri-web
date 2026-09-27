@@ -6,9 +6,9 @@
  */
 
 export interface CrawlJobErrorDTO {
-  id?: number;
-  message?: string;
+  id: number;
+  message: string;
   /** @nullable */
-  url?: string | null;
-  occurredAt?: string;
+  url: string | null;
+  occurredAt: string;
 }

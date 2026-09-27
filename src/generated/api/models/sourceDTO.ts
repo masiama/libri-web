@@ -6,6 +6,6 @@
  */
 
 export interface SourceDTO {
-  name?: string;
-  enabled?: boolean;
+  name: string;
+  enabled: boolean;
 }

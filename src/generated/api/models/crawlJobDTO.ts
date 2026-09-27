@@ -7,14 +7,14 @@
 import type { CrawlJobDTOStatus } from "./crawlJobDTOStatus.ts";
 
 export interface CrawlJobDTO {
-  id?: number;
-  sourceName?: string;
-  startedAt?: string;
+  id: number;
+  sourceName: string;
+  startedAt: string;
   /** @nullable */
-  finishedAt?: string | null;
-  status?: CrawlJobDTOStatus;
-  booksFound?: number;
+  finishedAt: string | null;
+  status: CrawlJobDTOStatus;
+  booksFound: number;
   /** @nullable */
-  errorMessage?: string | null;
-  errorCount?: number;
+  errorMessage: string | null;
+  errorCount: number;
 }

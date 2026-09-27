@@ -6,5 +6,5 @@
  */
 
 export interface PurgatoryApproveRequest {
-  isbn?: string;
+  isbn: string;
 }

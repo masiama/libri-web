@@ -6,5 +6,5 @@
  */
 
 export interface PurgatoryBulkDeleteRequest {
-  ids?: number[];
+  ids: number[];
 }

@@ -6,5 +6,5 @@
  */
 
 export interface BookBatchDeleteRequest {
-  isbns?: string[];
+  isbns: string[];
 }

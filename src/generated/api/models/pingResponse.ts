@@ -6,6 +6,6 @@
  */
 
 export interface PingResponse {
-  status?: string;
-  version?: string;
+  status: string;
+  version: string;
 }
