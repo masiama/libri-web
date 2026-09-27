@@ -2,6 +2,7 @@ import { SignInButton, SignOutButton, useUser } from "@clerk/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { BookScannerModal } from "#/components/BookScannerModal";
 import { useListBooks } from "#/generated/api/endpoints";
 
 const PAGE_SIZE = 10;
@@ -46,6 +47,7 @@ const BookList = () => {
 
 const Home = () => {
   const { isLoaded, isSignedIn, user } = useUser();
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   if (!isLoaded) return null;
 
@@ -65,6 +67,10 @@ const Home = () => {
       <SignOutButton>
         <button type="button">Sign out</button>
       </SignOutButton>
+      <button type="button" onClick={() => setScannerOpen(true)}>
+        Scan barcode
+      </button>
+      <BookScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} />
       <BookList />
     </div>
   );
