@@ -37,7 +37,11 @@ export const customFetch = async <T>(
   }
 
   if ([204, 205, 304].includes(response.status)) return undefined as T;
-  return (responseType === "blob" ? await response.blob() : await response.json()) as T;
+  if (responseType === "blob") return (await response.blob()) as T;
+  const contentType = response.headers.get("Content-Type") ?? "";
+  return (
+    contentType.includes("application/json") ? await response.json() : await response.text()
+  ) as T;
 };
 
 export default customFetch;
