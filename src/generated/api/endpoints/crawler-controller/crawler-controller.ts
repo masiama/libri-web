@@ -26,6 +26,7 @@ import type {
   ListCrawlJobsParams,
   PagedModelCrawlJobDTO,
   PagedModelCrawlJobErrorDTO,
+  ProblemDetail,
 } from "../../models";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -196,7 +197,10 @@ export const triggerAllCrawls = async (
 
 export const getTriggerAllCrawlsMutationKey = () => ["triggerAllCrawls"] as const;
 
-export const getTriggerAllCrawlsMutationOptions = <TError = string, TContext = unknown>(options?: {
+export const getTriggerAllCrawlsMutationOptions = <
+  TError = ProblemDetail,
+  TContext = unknown,
+>(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof triggerAllCrawls>>,
     TError,
@@ -223,9 +227,9 @@ export type TriggerAllCrawlsMutationResult = NonNullable<
   Awaited<ReturnType<typeof triggerAllCrawls>>
 >;
 
-export type TriggerAllCrawlsMutationError = string;
+export type TriggerAllCrawlsMutationError = ProblemDetail;
 
-export const useTriggerAllCrawls = <TError = string, TContext = unknown>(
+export const useTriggerAllCrawls = <TError = ProblemDetail, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof triggerAllCrawls>>,
@@ -256,7 +260,7 @@ export const triggerSourceCrawl = async (
 export const getTriggerSourceCrawlMutationKey = () => ["triggerSourceCrawl"] as const;
 
 export const getTriggerSourceCrawlMutationOptions = <
-  TError = void | string,
+  TError = void | ProblemDetail,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -295,10 +299,10 @@ export type TriggerSourceCrawlMutationResult = NonNullable<
   Awaited<ReturnType<typeof triggerSourceCrawl>>
 >;
 
-export type TriggerSourceCrawlMutationError = void | string;
+export type TriggerSourceCrawlMutationError = void | ProblemDetail;
 export type TriggerSourceCrawlMutationVariables = { source: string };
 
-export const useTriggerSourceCrawl = <TError = void | string, TContext = unknown>(
+export const useTriggerSourceCrawl = <TError = void | ProblemDetail, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof triggerSourceCrawl>>,

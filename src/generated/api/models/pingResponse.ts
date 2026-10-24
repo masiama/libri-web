@@ -4,8 +4,10 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { CrawlerStatus } from "./crawlerStatus.ts";
 
 export interface PingResponse {
   status: string;
   version: string;
+  crawler: CrawlerStatus;
 }

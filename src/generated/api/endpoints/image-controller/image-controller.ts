@@ -18,6 +18,7 @@ import type {
 } from "@tanstack/react-query";
 
 import { customFetch } from "../../../../api/mutator.ts";
+import type { GetImageParams } from "../../models";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -36,22 +37,35 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export const getGetImageUrl = (isbn: string) => {
-  return `/api/v1/images/${isbn}.jpg`;
+export const getGetImageUrl = (isbn: string, params?: GetImageParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : String(value));
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/images/${isbn}.jpg?${stringifiedParams}`
+    : `/api/v1/images/${isbn}.jpg`;
 };
 
 export const getImage = async (
   isbn: string,
+  params?: GetImageParams,
   options?: Parameters<typeof customFetch>[1],
 ): Promise<Blob> => {
-  return customFetch<Blob>(getGetImageUrl(isbn), {
+  return customFetch<Blob>(getGetImageUrl(isbn, params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getGetImageQueryKey = (isbn: string) => {
-  return [`/api/v1/images/${isbn}.jpg`] as const;
+export const getGetImageQueryKey = (isbn: string, params?: GetImageParams) => {
+  return [`/api/v1/images/${isbn}.jpg`, ...(params ? [params] : [])] as const;
 };
 
 export const getGetImageQueryOptions = <
@@ -59,6 +73,7 @@ export const getGetImageQueryOptions = <
   TError = unknown,
 >(
   isbn: string,
+  params?: GetImageParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getImage>>, TError, TData>>;
     request?: SecondParameter<typeof customFetch>;
@@ -66,10 +81,10 @@ export const getGetImageQueryOptions = <
 ) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getGetImageQueryKey(isbn);
+  const queryKey = queryOptions?.queryKey ?? getGetImageQueryKey(isbn, params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getImage>>> = ({ signal }) =>
-    getImage(isbn, { signal, ...requestOptions });
+    getImage(isbn, params, { signal, ...requestOptions });
 
   return {
     queryKey,
@@ -86,6 +101,7 @@ export type GetImageQueryError = unknown;
 
 export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError = unknown>(
   isbn: string,
+  params: undefined | GetImageParams,
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getImage>>, TError, TData>> &
       Pick<
@@ -102,6 +118,7 @@ export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError = unknown>(
   isbn: string,
+  params?: GetImageParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getImage>>, TError, TData>> &
       Pick<
@@ -118,6 +135,7 @@ export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError = unknown>(
   isbn: string,
+  params?: GetImageParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getImage>>, TError, TData>>;
     request?: SecondParameter<typeof customFetch>;
@@ -127,13 +145,14 @@ export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError
 
 export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError = unknown>(
   isbn: string,
+  params?: GetImageParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getImage>>, TError, TData>>;
     request?: SecondParameter<typeof customFetch>;
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getGetImageQueryOptions(isbn, options);
+  const queryOptions = getGetImageQueryOptions(isbn, params, options);
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;
