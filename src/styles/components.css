@@ -121,6 +121,35 @@ body {
   color: var(--ink);
 }
 
+.lb-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--header-h);
+  padding: 0 16px 0 20px;
+  box-sizing: border-box;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--line);
+  -webkit-backdrop-filter: saturate(1.4) blur(8px);
+  backdrop-filter: saturate(1.4) blur(8px);
+}
+@media (min-width: 768px) {
+  :root {
+    --header-h: 76px;
+  }
+  .lb-header {
+    padding: 0 32px;
+    gap: 16px;
+  }
+}
+.lb-wordmark {
+  font: 800 1.1875rem/1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
