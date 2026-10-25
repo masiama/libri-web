@@ -491,7 +491,7 @@ body {
   box-shadow: var(--shadow-lg);
 }
 .lb-menu__item {
-  min-height: var(--tap);
+  min-height: 48px;
   padding: 0 4px;
   border: 0;
   border-radius: 12px;
@@ -503,6 +503,60 @@ body {
 }
 .lb-menu__item:hover {
   background: var(--surface-2);
+}
+.lb-menu__item--danger {
+  color: var(--danger);
+}
+.lb-menu .lb-menu__item,
+.lb-menu .lb-switch {
+  padding: 0 8px;
+}
+.lb-menu .lb-menu__item,
+.lb-menu .lb-switch,
+.lb-sheet .lb-menu__item,
+.lb-sheet .lb-switch {
+  margin-block: 4px;
+}
+.lb-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 12px;
+}
+.lb-switch__track {
+  flex-shrink: 0;
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--field-line);
+  transition: background 200ms;
+}
+.lb-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--on-primary);
+  box-shadow: var(--shadow-sm);
+  transition: transform 200ms var(--ease-out);
+}
+.lb-switch[aria-checked="true"] .lb-switch__track {
+  background: var(--primary);
+}
+.lb-switch[aria-checked="true"] .lb-switch__knob {
+  transform: translateX(20px);
 }
 
 @media (prefers-reduced-motion: reduce) {

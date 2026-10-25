@@ -3,8 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#F7F4FF" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#14111C" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="theme-color"
+      content="#F7F4FF"
+      media="(prefers-color-scheme: light)"
+      data-scheme="light"
+    />
+    <meta
+      name="theme-color"
+      content="#14111C"
+      media="(prefers-color-scheme: dark)"
+      data-scheme="dark"
+    />
+    <script>
+      try {
+        var t = localStorage.getItem("libri-theme");
+        if (t === "light" || t === "dark") {
+          document.documentElement.dataset.theme = t;
+          for (var m of document.querySelectorAll('meta[name="theme-color"]'))
+            m.media = m.dataset.scheme === t ? "all" : "not all";
+        }
+      } catch (e) {}
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Libri</title>
   </head>
