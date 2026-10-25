@@ -1,4 +1,3 @@
-import { useUser } from "@clerk/react";
 import { Link, Navigate, createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -42,7 +41,7 @@ const NoResults = ({ q }: { q: string }) => {
   );
 };
 
-const BookList = () => {
+const Library = () => {
   const { page, q } = Route.useSearch();
   const { data, isLoading } = useListBooks({
     filter: q || undefined,
@@ -60,7 +59,7 @@ const BookList = () => {
     return <Navigate to="/" search={{ page: lastPage, q }} replace />;
 
   return (
-    <>
+    <main className="lg:px-column flex flex-col gap-4 px-5 pt-5 pb-8 md:gap-6 md:px-8 md:pt-7 md:pb-10 lg:pt-8 lg:pb-16">
       <div className="flex items-center gap-2.5 md:gap-3">
         <h1 className="lb-title md:text-[1.875rem] lg:text-[2rem]">Library</h1>
         <output className="lb-chip empty:hidden">
@@ -107,17 +106,6 @@ const BookList = () => {
           )}
         </>
       )}
-    </>
-  );
-};
-
-const Library = () => {
-  const { user } = useUser();
-
-  return (
-    <main className="lg:px-column flex flex-col gap-4 px-5 pt-5 pb-8 md:gap-6 md:px-8 md:pt-7 lg:pt-8 lg:pb-16">
-      <p>{user?.primaryEmailAddress?.emailAddress}</p>
-      <BookList />
     </main>
   );
 };

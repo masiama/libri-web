@@ -401,6 +401,110 @@ body {
   }
 }
 
+.lb-avatar {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 999px;
+  border: 0;
+  background: var(--cover-4-bg);
+  color: var(--cover-4-fg);
+  font: 700 0.9375rem/1 var(--font-body);
+  cursor: pointer;
+}
+
+.lb-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  padding: 12px 20px calc(28px + env(safe-area-inset-bottom));
+  border-radius: 28px 28px 0 0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25);
+  overscroll-behavior: contain;
+  touch-action: none;
+  transition: transform 200ms var(--ease-out);
+  animation: lb-sheet-in 350ms var(--ease-out);
+}
+.lb-sheet:not([open]) {
+  display: none;
+}
+.lb-sheet::backdrop {
+  background: rgba(20, 17, 28, 0.45);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  animation: lb-fade-in 350ms var(--ease-out);
+}
+.lb-sheet--closing {
+  animation: lb-sheet-out 350ms var(--ease-out) forwards;
+}
+.lb-sheet--closing::backdrop {
+  animation: lb-fade-out 350ms var(--ease-out) forwards;
+}
+@keyframes lb-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes lb-sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes lb-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes lb-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+.lb-sheet__grip {
+  width: 40px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line);
+  align-self: center;
+}
+.lb-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border-radius: 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+}
+.lb-menu__item {
+  min-height: var(--tap);
+  padding: 0 4px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font: 600 0.9375rem/1.2 var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+.lb-menu__item:hover {
+  background: var(--surface-2);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
