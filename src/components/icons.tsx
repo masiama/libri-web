@@ -1,4 +1,4 @@
-export { Check, ChevronLeft, ChevronRight } from "lucide-react";
+export { Check, ChevronLeft, ChevronRight, Share } from "lucide-react";
 
 export const ScanIcon = ({
   size = 24,

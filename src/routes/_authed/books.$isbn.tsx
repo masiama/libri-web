@@ -12,10 +12,11 @@ import { ApiError } from "#/api/mutator";
 import { Barcode } from "#/components/Barcode";
 import { Cover } from "#/components/Cover";
 import { ReadingRex } from "#/components/Dino";
-import { Check, ChevronLeft } from "#/components/icons";
+import { Check, ChevronLeft, Share } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import { toIsbn13 } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
+import { shareLink } from "#/lib/share";
 
 const isNotFound = (error: unknown) => error instanceof ApiError && error.status === 404;
 
@@ -32,7 +33,7 @@ const BackLink = ({ page, className }: { page?: number; className?: string }) =>
       to="/"
       search={{ page: page ?? 1 }}
       className={clsx(
-        "lb-btn lb-btn--icon bg-surface md:w-auto md:gap-1.5 md:pr-4.5 md:pl-3 md:text-[0.9375rem]",
+        "lb-btn lb-btn--icon md:w-auto md:gap-1.5 md:pr-4.5 md:pl-3 md:text-[0.9375rem]",
         className,
       )}
       onClick={(e) => {
@@ -47,9 +48,8 @@ const BackLink = ({ page, className }: { page?: number; className?: string }) =>
   );
 };
 
-const IsbnCard = ({ isbn }: { isbn: string }) => {
+const useCopied = () => {
   const [copiedAt, setCopiedAt] = useState(0);
-  const copied = copiedAt > 0;
 
   useEffect(() => {
     if (!copiedAt) return;
@@ -57,12 +57,53 @@ const IsbnCard = ({ isbn }: { isbn: string }) => {
     return () => clearTimeout(timer);
   }, [copiedAt]);
 
+  return [copiedAt > 0, (copied: boolean) => setCopiedAt(copied ? Date.now() : 0)] as const;
+};
+
+const ShareButton = ({ title, labelled }: { title: string; labelled?: boolean }) => {
+  const [copied, setCopied] = useCopied();
+  const Icon = copied ? Check : Share;
+
+  const share = async () => {
+    const result = await shareLink({ title, url: window.location.href });
+    if (result !== "cancelled") setCopied(result === "copied");
+  };
+
+  return (
+    <>
+      {labelled ? (
+        <button
+          type="button"
+          className="lb-btn lb-btn--lg bg-surface text-ink pr-5 pl-4 shadow-sm"
+          onClick={share}
+        >
+          <Icon size={20} aria-hidden />
+          {copied ? "Copied" : "Share"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          aria-label="Share"
+          className="lb-btn lb-btn--icon bg-chrome"
+          onClick={share}
+        >
+          <Icon aria-hidden />
+        </button>
+      )}
+      <output className="lb-sr-only">{copied && "Link copied"}</output>
+    </>
+  );
+};
+
+const IsbnCard = ({ isbn }: { isbn: string }) => {
+  const [copied, setCopied] = useCopied();
+
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(isbn);
-      setCopiedAt(Date.now());
+      setCopied(true);
     } catch {
-      setCopiedAt(0);
+      setCopied(false);
     }
   };
 
@@ -101,9 +142,9 @@ const BarcodeCard = ({ isbn, coverSrc }: { isbn: string; coverSrc: string }) => 
   );
 };
 
-type HeroProps = { busy?: boolean; cover?: ReactNode; details?: ReactNode };
+type HeroProps = { busy?: boolean; cover?: ReactNode; details?: ReactNode; share?: ReactNode };
 
-const Hero = ({ busy, cover, details, children }: React.PropsWithChildren<HeroProps>) => {
+const Hero = ({ busy, cover, details, share, children }: React.PropsWithChildren<HeroProps>) => {
   const libraryPage = useLocation({ select: (l) => l.state.libraryPage });
 
   return (
@@ -112,7 +153,7 @@ const Hero = ({ busy, cover, details, children }: React.PropsWithChildren<HeroPr
         aria-label="Breadcrumb"
         className="text-muted flex items-center gap-2 text-sm max-lg:hidden"
       >
-        <BackLink page={libraryPage} className="min-h-10 shadow-sm" />
+        <BackLink page={libraryPage} className="bg-surface min-h-10 shadow-sm" />
         {libraryPage && (
           <>
             <span aria-hidden="true">·</span>
@@ -124,7 +165,10 @@ const Hero = ({ busy, cover, details, children }: React.PropsWithChildren<HeroPr
         aria-busy={busy}
         className="bg-hero flex flex-col gap-4.5 rounded-b-[36px] bg-[radial-gradient(var(--hero-pattern)_1.6px,transparent_1.8px)] bg-size-[18px_18px] px-4 pt-4 pb-7 md:gap-6 md:rounded-b-[44px] md:px-8 md:pt-5 md:pb-10 lg:rounded-[36px] lg:px-14 lg:py-12"
       >
-        <BackLink page={libraryPage} className="self-start lg:hidden" />
+        <div className="flex justify-between lg:hidden">
+          <BackLink page={libraryPage} className="bg-chrome" />
+          {share}
+        </div>
         <div className="flex flex-col items-center gap-5 md:flex-row md:items-end md:gap-9 lg:items-center lg:gap-12">
           {cover && <div className="flex shrink-0 justify-center lg:w-105">{cover}</div>}
           <div className="flex flex-col items-center gap-2 text-center md:min-w-0 md:flex-1 md:items-start md:gap-3 md:pb-2 md:text-left lg:gap-3.5 lg:pb-0">
@@ -203,6 +247,7 @@ const BookDetail = () => {
           <BarcodeCard isbn={book.isbn} coverSrc={coverSrc} />
         </>
       }
+      share={<ShareButton title={book.title} />}
     >
       <h1 className={TITLE}>{book.title}</h1>
       {book.authors.length > 0 && (
@@ -210,6 +255,9 @@ const BookDetail = () => {
           {book.authors.join(", ")}
         </p>
       )}
+      <div className="mt-4.5 max-lg:hidden">
+        <ShareButton title={book.title} labelled />
+      </div>
     </Hero>
   );
 };
