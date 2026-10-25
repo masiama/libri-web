@@ -10,5 +10,6 @@ declare module "@tanstack/react-router" {
   }
   interface HistoryState {
     libraryPage?: number;
+    libraryQuery?: string;
   }
 }

@@ -5,56 +5,54 @@ import { pageItems } from "#/lib/page";
 
 import { ChevronLeft, ChevronRight } from "./icons";
 
-const ARROW = "lb-btn lb-btn--primary min-h-(--tap) w-(--tap) px-0";
-
 type PagerProps = {
   page: number;
-  totalPages?: number;
-  totalItems?: number;
+  totalPages: number;
+  totalItems: number;
   pageSize: number;
+  loading: boolean;
   className?: string;
 };
 
-const PrevLink = ({ page }: { page: number }) => (
-  <Link
-    to="/"
-    search={{ page: page - 1 }}
-    activeOptions={{ exact: true }}
-    disabled={page <= 1}
-    aria-label="Previous page"
-    tabIndex={0}
-    className={ARROW}
-  >
-    <ChevronLeft aria-hidden />
-  </Link>
-);
+type StepLinkProps = { page: number; totalPages: number; step: -1 | 1; loading: boolean };
 
-const NextLink = ({ page, totalPages }: { page: number; totalPages?: number }) => (
-  <Link
-    to="/"
-    search={{ page: page + 1 }}
-    activeOptions={{ exact: true }}
-    disabled={totalPages === undefined || page >= totalPages}
-    aria-label="Next page"
-    tabIndex={0}
-    className={ARROW}
-  >
-    <ChevronRight aria-hidden />
-  </Link>
-);
+const StepLink = ({ page, totalPages, step, loading }: StepLinkProps) => {
+  const to = page + step;
+  return (
+    <Link
+      from="/"
+      to="/"
+      search={(prev) => ({ ...prev, page: to })}
+      activeOptions={{ exact: true }}
+      disabled={loading || to < 1 || to > totalPages}
+      aria-label={step < 0 ? "Previous page" : "Next page"}
+      tabIndex={0}
+      className="lb-btn lb-btn--primary min-h-(--tap) w-(--tap) px-0"
+    >
+      {step < 0 ? <ChevronLeft aria-hidden /> : <ChevronRight aria-hidden />}
+    </Link>
+  );
+};
 
-export const Pager = ({ page, totalPages, totalItems, pageSize, className }: PagerProps) => (
+export const Pager = ({
+  page,
+  totalPages,
+  totalItems,
+  pageSize,
+  loading,
+  className,
+}: PagerProps) => (
   <>
     <nav
       aria-label="Pagination"
       className={clsx("lb-pager lb-pager--compact md:hidden", className)}
     >
-      <PrevLink page={page} />
+      <StepLink page={page} totalPages={totalPages} step={-1} loading={loading} />
       <span className="lb-pager__status">
         Page <span className="font-mono font-semibold">{page}</span> of{" "}
-        <span className="font-mono">{totalPages ?? "…"}</span>
+        <span className="font-mono">{loading ? "…" : totalPages}</span>
       </span>
-      <NextLink page={page} totalPages={totalPages} />
+      <StepLink page={page} totalPages={totalPages} step={1} loading={loading} />
     </nav>
     <nav
       aria-label="Pagination"
@@ -63,37 +61,35 @@ export const Pager = ({ page, totalPages, totalItems, pageSize, className }: Pag
         className,
       )}
     >
-      {totalItems !== undefined && (
-        <p className="lb-muted m-0 text-sm max-lg:hidden">
-          Showing{" "}
-          <span className="font-mono">
-            {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalItems)}
-          </span>{" "}
-          of {totalItems}
-        </p>
-      )}
+      <p className="lb-muted m-0 text-sm max-lg:hidden">
+        Showing{" "}
+        <span className="font-mono">
+          {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, totalItems)}
+        </span>{" "}
+        of {totalItems}
+      </p>
       <div className="lb-pager">
-        <PrevLink page={page} />
-        {totalPages !== undefined &&
-          pageItems(page, totalPages).map((item, i) =>
-            item === "…" ? (
-              <span key={`gap-${i}`} className="lb-pager__gap" aria-hidden="true">
-                …
-              </span>
-            ) : (
-              <Link
-                key={item}
-                to="/"
-                search={{ page: item }}
-                activeOptions={{ exact: true }}
-                aria-label={`Page ${item}`}
-                className="lb-pager__page"
-              >
-                {item}
-              </Link>
-            ),
-          )}
-        <NextLink page={page} totalPages={totalPages} />
+        <StepLink page={page} totalPages={totalPages} step={-1} loading={loading} />
+        {pageItems(page, totalPages).map((item, i) =>
+          item === "…" ? (
+            <span key={`gap-${i}`} className="lb-pager__gap" aria-hidden="true">
+              …
+            </span>
+          ) : (
+            <Link
+              key={item}
+              from="/"
+              to="/"
+              search={(prev) => ({ ...prev, page: item })}
+              activeOptions={{ exact: true }}
+              aria-label={`Page ${item}`}
+              className="lb-pager__page"
+            >
+              {item}
+            </Link>
+          ),
+        )}
+        <StepLink page={page} totalPages={totalPages} step={1} loading={loading} />
       </div>
     </nav>
   </>

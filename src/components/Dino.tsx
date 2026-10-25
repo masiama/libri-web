@@ -4,6 +4,34 @@ import { coverPaletteIndex } from "#/lib/cover";
 
 import { DinoBody } from "./Logo";
 
+export const ConfusedDino = () => (
+  <svg
+    viewBox="-40 -80 540 520"
+    width={140}
+    height={(140 * 520) / 540}
+    aria-hidden="true"
+    style={{ color: "var(--logo)" }}
+  >
+    <DinoBody strokeWidth={30} />
+    <path d="M300 135l30 14l30-14l30 14l30-14" fill="none" stroke="currentColor" strokeWidth={22} />
+    <path
+      d="M332 57l26 26M358 57l-26 26"
+      strokeWidth={12}
+      strokeLinecap="round"
+      style={{ stroke: "var(--dino-eye)" }}
+    />
+    <text
+      x={440}
+      y={10}
+      fontSize={80}
+      fontWeight={800}
+      style={{ fontFamily: "var(--font-display)", fill: "var(--primary)" }}
+    >
+      ?
+    </text>
+  </svg>
+);
+
 type ReadingRexProps = { isbn: string; coverSrc: string; className?: string };
 
 export const ReadingRex = ({ isbn, coverSrc, className }: ReadingRexProps) => {

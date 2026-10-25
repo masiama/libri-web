@@ -16,3 +16,8 @@ export const pageItems = (page: number, totalPages: number) => {
   }
   return items;
 };
+
+export const parseQuery = (value: unknown) =>
+  typeof value === "string" || typeof value === "number" || typeof value === "boolean"
+    ? String(value).trim()
+    : "";
