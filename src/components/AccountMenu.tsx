@@ -2,6 +2,8 @@ import { useClerk, useUser } from "@clerk/react";
 import clsx from "clsx";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
+import { ThemeToggle } from "./ThemeToggle";
+
 const wideQuery = "(min-width: 48rem)";
 
 const subscribeWide = (onChange: () => void) => {
@@ -166,14 +168,17 @@ export const AccountMenu = () => {
           className="lb-menu"
           onKeyDown={onMenuKeyDown}
         >
-          <div className="border-line border-b px-1 pt-1 pb-3">
+          <div className="px-1 pt-1.5 pb-3">
             <UserSummary size="menu" />
           </div>
+          <hr className="border-line" />
+          <ThemeToggle asMenuItem />
+          <hr className="border-line" />
           <button
             type="button"
             role="menuitem"
             tabIndex={-1}
-            className="lb-menu__item text-danger"
+            className="lb-menu__item lb-menu__item--danger"
             onClick={() => void signOut()}
           >
             Sign out
@@ -199,10 +204,15 @@ export const AccountMenu = () => {
           onPointerCancel={onSheetPointerUp}
         >
           <div className="lb-sheet__grip" aria-hidden="true" />
-          <UserSummary size="sheet" />
+          <div className="pt-3 pb-3.5">
+            <UserSummary size="sheet" />
+          </div>
+          <hr className="border-line" />
+          <ThemeToggle />
+          <hr className="border-line" />
           <button
             type="button"
-            className="lb-btn lb-btn--danger lb-btn--block min-h-12"
+            className="lb-menu__item lb-menu__item--danger text-base"
             onClick={() => void signOut()}
           >
             Sign out
