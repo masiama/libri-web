@@ -28,7 +28,7 @@ export const BookScannerModal = ({ open, onClose }: { open: boolean; onClose: ()
 
   return (
     <dialog ref={dialogRef} onClose={onClose}>
-      <button type="button" onClick={onClose}>
+      <button type="button" className="lb-btn lb-btn--outline" onClick={onClose}>
         Close
       </button>
       {open && <ScannerOrBookInfo />}
