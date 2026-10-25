@@ -9,9 +9,11 @@ import clsx from "clsx";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { ApiError } from "#/api/mutator";
+import { Barcode } from "#/components/Barcode";
 import { Cover } from "#/components/Cover";
 import { Check, ChevronLeft } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
+import { toIsbn13 } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
 
 const isNotFound = (error: unknown) => error instanceof ApiError && error.status === 404;
@@ -76,6 +78,21 @@ const IsbnCard = ({ isbn }: { isbn: string }) => {
         {copied ? "Copied" : "Copy"}
       </button>
       <output className="lb-sr-only">{copied && "ISBN copied"}</output>
+    </div>
+  );
+};
+
+const BarcodeCard = ({ isbn }: { isbn: string }) => {
+  const isbn13 = toIsbn13(isbn);
+  if (!isbn13) return null;
+
+  return (
+    <div className="lb-card flex flex-col justify-center gap-2.5 rounded-3xl p-4.5 md:gap-2 md:px-5 md:py-4 lg:px-5.5">
+      <h2 className="text-muted text-xs font-semibold tracking-[0.6px] uppercase">
+        This book’s real barcode
+      </h2>
+      <Barcode code={isbn13} module={1.6} height={52} />
+      <p className="text-muted m-0 text-[0.8125rem] md:hidden">Yes, you can scan this one too.</p>
     </div>
   );
 };
@@ -174,7 +191,12 @@ const BookDetail = () => {
           />
         </div>
       }
-      details={<IsbnCard isbn={book.isbn} />}
+      details={
+        <>
+          <IsbnCard isbn={book.isbn} />
+          <BarcodeCard isbn={book.isbn} />
+        </>
+      }
     >
       <h1 className={TITLE}>{book.title}</h1>
       {book.authors.length > 0 && (
