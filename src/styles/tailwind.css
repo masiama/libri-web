@@ -1,5 +1,9 @@
 @theme {
-  --breakpoint-lg: 1100px;
+  --breakpoint-lg: 68.75rem;
+}
+
+@utility px-column {
+  padding-inline: max(2rem, calc((100% - 1280px) / 2 + 2rem));
 }
 
 @theme inline {
