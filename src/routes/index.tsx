@@ -5,6 +5,7 @@ import { useState } from "react";
 import { BookScannerModal } from "#/components/BookScannerModal";
 import { Cover } from "#/components/Cover";
 import { ScanIcon } from "#/components/icons";
+import { CoverSkeleton } from "#/components/Loaders";
 import { Logo } from "#/components/Logo";
 import { getGetImageUrl, useListBooks } from "#/generated/api/endpoints";
 import { formatAuthors } from "#/lib/cover";
@@ -22,26 +23,24 @@ const BookList = () => {
         <h1 className="lb-title md:text-[1.875rem] lg:text-[2rem]">Library</h1>
         {pageMeta && <span className="lb-chip">{pageMeta.totalElements} books</span>}
       </div>
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="lb-grid">
-          {data?.content?.map((book) => (
-            <div key={book.isbn} className="lb-book">
-              <Cover
-                isbn={book.isbn}
-                title={book.title}
-                authors={book.authors}
-                src={getGetImageUrl(book.isbn, { side: "front" })}
-                width={107}
-                className="w-full"
-              />
-              <div className="lb-book__title">{book.title}</div>
-              <div className="lb-book__author">{formatAuthors(book.authors)}</div>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="lb-grid" aria-busy={isLoading}>
+        {isLoading
+          ? Array.from({ length: PAGE_SIZE }, (_, i) => <CoverSkeleton key={i} />)
+          : data?.content?.map((book) => (
+              <div key={book.isbn} className="lb-book">
+                <Cover
+                  isbn={book.isbn}
+                  title={book.title}
+                  authors={book.authors}
+                  src={getGetImageUrl(book.isbn, { side: "front" })}
+                  width={107}
+                  className="w-full"
+                />
+                <div className="lb-book__title">{book.title}</div>
+                <div className="lb-book__author">{formatAuthors(book.authors)}</div>
+              </div>
+            ))}
+      </div>
       <div className="flex items-center gap-3">
         <button
           type="button"
