@@ -6,12 +6,13 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import clsx from "clsx";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { ApiError } from "#/api/mutator";
 import { Cover } from "#/components/Cover";
-import { ChevronLeft } from "#/components/icons";
+import { Check, ChevronLeft } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
+import { formatIsbn } from "#/lib/isbn";
 
 const isNotFound = (error: unknown) => error instanceof ApiError && error.status === 404;
 
@@ -43,9 +44,45 @@ const BackLink = ({ page, className }: { page?: number; className?: string }) =>
   );
 };
 
-type HeroProps = { busy?: boolean; cover?: ReactNode };
+const IsbnCard = ({ isbn }: { isbn: string }) => {
+  const [copiedAt, setCopiedAt] = useState(0);
+  const copied = copiedAt > 0;
 
-const Hero = ({ busy, cover, children }: React.PropsWithChildren<HeroProps>) => {
+  useEffect(() => {
+    if (!copiedAt) return;
+    const timer = setTimeout(() => setCopiedAt(0), 2000);
+    return () => clearTimeout(timer);
+  }, [copiedAt]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(isbn);
+      setCopiedAt(Date.now());
+    } catch {
+      setCopiedAt(0);
+    }
+  };
+
+  return (
+    <div className="lb-card flex min-h-16 items-center gap-3 rounded-lg py-2.5 pr-2.5 pl-5">
+      <div className="min-w-0 flex-1">
+        <div className="text-muted text-[0.8125rem]">ISBN</div>
+        <div className="font-mono text-[1.0625rem] font-medium tracking-[0.5px]">
+          {formatIsbn(isbn)}
+        </div>
+      </div>
+      <button type="button" className="lb-btn lb-btn--soft min-h-11 px-4.5 text-sm" onClick={copy}>
+        {copied && <Check size={16} aria-hidden />}
+        {copied ? "Copied" : "Copy"}
+      </button>
+      <output className="lb-sr-only">{copied && "ISBN copied"}</output>
+    </div>
+  );
+};
+
+type HeroProps = { busy?: boolean; cover?: ReactNode; details?: ReactNode };
+
+const Hero = ({ busy, cover, details, children }: React.PropsWithChildren<HeroProps>) => {
   const libraryPage = useLocation({ select: (l) => l.state.libraryPage });
 
   return (
@@ -74,6 +111,11 @@ const Hero = ({ busy, cover, children }: React.PropsWithChildren<HeroProps>) => 
           </div>
         </div>
       </section>
+      {details && (
+        <div className="flex flex-col gap-4 p-5 md:grid md:grid-cols-2 md:items-start md:gap-4.5 md:px-8 md:py-7 lg:grid-cols-[380px_520px] lg:gap-5 lg:p-0">
+          {details}
+        </div>
+      )}
     </main>
   );
 };
@@ -132,6 +174,7 @@ const BookDetail = () => {
           />
         </div>
       }
+      details={<IsbnCard isbn={book.isbn} />}
     >
       <h1 className={TITLE}>{book.title}</h1>
       {book.authors.length > 0 && (
