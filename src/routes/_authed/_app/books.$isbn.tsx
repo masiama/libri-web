@@ -1,10 +1,4 @@
-import {
-  Link,
-  createFileRoute,
-  useCanGoBack,
-  useLocation,
-  useRouter,
-} from "@tanstack/react-router";
+import { Link, createFileRoute, useLocation } from "@tanstack/react-router";
 import clsx from "clsx";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -14,6 +8,7 @@ import { Cover } from "#/components/Cover";
 import { ReadingRex } from "#/components/Dino";
 import { Check, ChevronLeft, Share } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
+import { useBackClick } from "#/lib/back";
 import { toIsbn13 } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
 import { shareLink } from "#/lib/share";
@@ -25,8 +20,7 @@ const TITLE =
   "lb-title text-2xl leading-[1.2] md:text-[1.875rem] md:leading-[1.18] lg:text-[2.75rem] lg:leading-[1.1] lg:tracking-[-1.2px]";
 
 const BackLink = ({ className }: { className?: string }) => {
-  const router = useRouter();
-  const canGoBack = useCanGoBack();
+  const onBack = useBackClick();
   const { libraryPage = 1, libraryQuery = "" } = useLocation({ select: (l) => l.state });
 
   return (
@@ -37,11 +31,7 @@ const BackLink = ({ className }: { className?: string }) => {
         "lb-btn lb-btn--icon md:w-auto md:gap-1.5 md:pr-4.5 md:pl-3 md:text-[0.9375rem]",
         className,
       )}
-      onClick={(e) => {
-        if (!canGoBack) return;
-        e.preventDefault();
-        router.history.back();
-      }}
+      onClick={onBack}
     >
       <ChevronLeft aria-hidden />
       <span className="max-md:sr-only">Library</span>

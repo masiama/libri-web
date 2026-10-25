@@ -559,6 +559,91 @@ body {
   transform: translateX(20px);
 }
 
+.lb-scan {
+  min-height: 100dvh;
+  background: var(--scan-surface);
+  color: var(--ink);
+}
+.lb-camera {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background-color: var(--camera-bg);
+  background-image: radial-gradient(var(--camera-pattern) 1.6px, transparent 1.8px);
+  background-size: 18px 18px;
+}
+.lb-reticle {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: min(70%, 320px);
+  aspect-ratio: 1.75;
+  transform: translate(-50%, -50%);
+  --c: var(--reticle);
+}
+.lb-reticle[data-state="locked"] {
+  --c: var(--laser);
+}
+.lb-reticle[data-state="warn"] {
+  --c: var(--warn-text);
+}
+.lb-reticle[data-state="error"] {
+  --c: var(--danger);
+}
+.lb-reticle__corner {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 0 solid var(--c);
+}
+.lb-reticle__corner:nth-child(1) {
+  left: 0;
+  top: 0;
+  border-left-width: 5px;
+  border-top-width: 5px;
+  border-top-left-radius: 18px;
+}
+.lb-reticle__corner:nth-child(2) {
+  right: 0;
+  top: 0;
+  border-right-width: 5px;
+  border-top-width: 5px;
+  border-top-right-radius: 18px;
+}
+.lb-reticle__corner:nth-child(3) {
+  left: 0;
+  bottom: 0;
+  border-left-width: 5px;
+  border-bottom-width: 5px;
+  border-bottom-left-radius: 18px;
+}
+.lb-reticle__corner:nth-child(4) {
+  right: 0;
+  bottom: 0;
+  border-right-width: 5px;
+  border-bottom-width: 5px;
+  border-bottom-right-radius: 18px;
+}
+.lb-reticle__laser {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--laser);
+  box-shadow: 0 0 14px 3px var(--laser-glow);
+  animation: lb-sweep-y 2s ease-in-out infinite;
+}
+@keyframes lb-sweep-y {
+  0%,
+  100% {
+    top: 12%;
+  }
+  50% {
+    top: 84%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -567,5 +652,9 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
     transition-delay: 0ms !important;
+  }
+  .lb-reticle__laser {
+    animation: none;
+    top: 50%;
   }
 }
