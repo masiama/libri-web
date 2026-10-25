@@ -3,9 +3,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { BookScannerModal } from "#/components/BookScannerModal";
+import { Cover } from "#/components/Cover";
 import { ScanIcon } from "#/components/icons";
 import { Logo } from "#/components/Logo";
-import { useListBooks } from "#/generated/api/endpoints";
+import { getGetImageUrl, useListBooks } from "#/generated/api/endpoints";
+import { formatAuthors } from "#/lib/cover";
 
 const PAGE_SIZE = 10;
 
@@ -15,18 +17,30 @@ const BookList = () => {
   const pageMeta = data?.page;
 
   return (
-    <div>
-      <h2>Books</h2>
+    <>
+      <div className="flex items-center gap-2.5 md:gap-3">
+        <h1 className="lb-title md:text-[1.875rem] lg:text-[2rem]">Library</h1>
+        {pageMeta && <span className="lb-chip">{pageMeta.totalElements} books</span>}
+      </div>
       {isLoading ? (
         <p>Loading...</p>
       ) : (
-        <ul>
+        <div className="lb-grid">
           {data?.content?.map((book) => (
-            <li key={book.isbn}>
-              {book.title} — {book.authors?.join(", ")}
-            </li>
+            <div key={book.isbn} className="lb-book">
+              <Cover
+                isbn={book.isbn}
+                title={book.title}
+                authors={book.authors}
+                src={getGetImageUrl(book.isbn, { side: "front" })}
+                width={107}
+                className="w-full"
+              />
+              <div className="lb-book__title">{book.title}</div>
+              <div className="lb-book__author">{formatAuthors(book.authors)}</div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
       <div className="flex items-center gap-3">
         <button
@@ -49,7 +63,7 @@ const BookList = () => {
           Next
         </button>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -73,7 +87,7 @@ const Home = () => {
 
   return (
     <>
-      <header className="lb-header lg:px-[max(32px,calc((100%-1280px)/2+32px))]">
+      <header className="lb-header lg:px-column">
         <Logo className="size-7 md:size-8" />
         <span className="lb-wordmark md:text-[1.25rem]">libri</span>
         <button
@@ -91,7 +105,7 @@ const Home = () => {
           </button>
         </SignOutButton>
       </header>
-      <main className="p-8">
+      <main className="lg:px-column flex flex-col gap-4 px-5 pt-5 pb-8 md:gap-6 md:px-8 md:pt-7 lg:pt-8 lg:pb-16">
         <p>{user.primaryEmailAddress?.emailAddress}</p>
         <BookScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} />
         <BookList />
