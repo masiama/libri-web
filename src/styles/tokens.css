@@ -111,7 +111,8 @@
   --dur-slow: 650ms;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+.lb-scan {
   color-scheme: dark;
   --bg: #14111c;
   --bg-pattern: #2a2340;
