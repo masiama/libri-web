@@ -2,6 +2,15 @@ import { getToken } from "@clerk/react";
 
 export type BodyType<T> = T;
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
+
 type FetchArgs = {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: BodyType<unknown>;
@@ -33,7 +42,7 @@ export const customFetch = async <T>(
 
   if (response.status >= 400) {
     const message = await response.text().catch(() => "");
-    throw new Error(message || `Request failed with status ${response.status}`);
+    throw new ApiError(message || `Request failed with status ${response.status}`, response.status);
   }
 
   if ([204, 205, 304].includes(response.status)) return undefined as T;
