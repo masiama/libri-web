@@ -1,3 +1,5 @@
+export { ChevronLeft, ChevronRight } from "lucide-react";
+
 export const ScanIcon = ({
   size = 24,
   ...rest
