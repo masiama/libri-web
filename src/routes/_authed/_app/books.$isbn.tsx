@@ -263,4 +263,4 @@ const BookDetail = () => {
   );
 };
 
-export const Route = createFileRoute("/_authed/books/$isbn")({ component: BookDetail });
+export const Route = createFileRoute("/_authed/_app/books/$isbn")({ component: BookDetail });

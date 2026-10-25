@@ -1,7 +1,6 @@
 import { Link, Navigate, createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { BookScannerModal } from "#/components/BookScannerModal";
 import { Cover } from "#/components/Cover";
 import { ConfusedDino } from "#/components/Dino";
 import { ScanIcon } from "#/components/icons";
@@ -14,32 +13,22 @@ import { parsePage, parseQuery } from "#/lib/page";
 
 const PAGE_SIZE = 20;
 
-const NoResults = ({ q }: { q: string }) => {
-  const [scannerOpen, setScannerOpen] = useState(false);
-
-  return (
-    <div className="flex flex-col items-center gap-3 px-4 pt-10 text-center">
-      <ConfusedDino />
-      <h2 className="font-display m-0 text-[1.1875rem] leading-tight font-extrabold wrap-anywhere">
-        No books match
-        <br />“{q}”
-      </h2>
-      <p className="lb-muted m-0 max-w-72.5 text-[0.9375rem]">
-        Check the spelling, or try just the author’s surname. Got the book in hand? Scan its barcode
-        instead.
-      </p>
-      <button
-        type="button"
-        className="lb-btn lb-btn--soft mt-2 px-6"
-        onClick={() => setScannerOpen(true)}
-      >
-        <ScanIcon size={20} />
-        Scan a book
-      </button>
-      <BookScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} />
-    </div>
-  );
-};
+const NoResults = ({ q }: { q: string }) => (
+  <div className="flex flex-col items-center gap-3 px-4 pt-10 text-center">
+    <ConfusedDino />
+    <h2 className="font-display m-0 text-[1.1875rem] leading-tight font-extrabold wrap-anywhere">
+      No books match “{q}”
+    </h2>
+    <p className="lb-muted m-0 max-w-72.5 text-[0.9375rem]">
+      Check the spelling, or try just the author’s surname. Got the book in hand? Scan its barcode
+      instead.
+    </p>
+    <Link to="/scan" className="lb-btn lb-btn--soft mt-2 px-6">
+      <ScanIcon size={20} />
+      Scan a book
+    </Link>
+  </div>
+);
 
 const Library = () => {
   const { page, q } = Route.useSearch();
@@ -110,7 +99,7 @@ const Library = () => {
   );
 };
 
-export const Route = createFileRoute("/_authed/")({
+export const Route = createFileRoute("/_authed/_app/")({
   validateSearch: (search: Record<string, unknown>) => ({
     page: parsePage(search.page),
     q: parseQuery(search.q),

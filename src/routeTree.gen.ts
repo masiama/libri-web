@@ -10,44 +10,65 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
-import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
-import { Route as AuthedBooksIsbnRouteImport } from './routes/_authed/books.$isbn'
+import { Route as AuthedAppRouteImport } from './routes/_authed/_app'
+import { Route as AuthedScanRouteImport } from './routes/_authed/scan'
+import { Route as AuthedAppIndexRouteImport } from './routes/_authed/_app/index'
+import { Route as AuthedAppBooksIsbnRouteImport } from './routes/_authed/_app/books.$isbn'
 
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedIndexRoute = AuthedIndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthedAppRoute = AuthedAppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedBooksIsbnRoute = AuthedBooksIsbnRouteImport.update({
+const AuthedScanRoute = AuthedScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedAppIndexRoute = AuthedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthedAppRoute,
+} as any)
+const AuthedAppBooksIsbnRoute = AuthedAppBooksIsbnRouteImport.update({
   id: '/books/$isbn',
   path: '/books/$isbn',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedAppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthedIndexRoute
-  '/books/$isbn': typeof AuthedBooksIsbnRoute
+  '/': typeof AuthedAppIndexRoute
+  '/scan': typeof AuthedScanRoute
+  '/books/$isbn': typeof AuthedAppBooksIsbnRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AuthedIndexRoute
-  '/books/$isbn': typeof AuthedBooksIsbnRoute
+  '/': typeof AuthedAppIndexRoute
+  '/scan': typeof AuthedScanRoute
+  '/books/$isbn': typeof AuthedAppBooksIsbnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
-  '/_authed/': typeof AuthedIndexRoute
-  '/_authed/books/$isbn': typeof AuthedBooksIsbnRoute
+  '/_authed/_app': typeof AuthedAppRouteWithChildren
+  '/_authed/scan': typeof AuthedScanRoute
+  '/_authed/_app/': typeof AuthedAppIndexRoute
+  '/_authed/_app/books/$isbn': typeof AuthedAppBooksIsbnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/books/$isbn'
+  fullPaths: '/' | '/scan' | '/books/$isbn'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/books/$isbn'
-  id: '__root__' | '/_authed' | '/_authed/' | '/_authed/books/$isbn'
+  to: '/' | '/scan' | '/books/$isbn'
+  id:
+    | '__root__'
+    | '/_authed'
+    | '/_authed/_app'
+    | '/_authed/scan'
+    | '/_authed/_app/'
+    | '/_authed/_app/books/$isbn'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -63,31 +84,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authed/': {
-      id: '/_authed/'
-      path: '/'
+    '/_authed/_app': {
+      id: '/_authed/_app'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthedIndexRouteImport
+      preLoaderRoute: typeof AuthedAppRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/books/$isbn': {
-      id: '/_authed/books/$isbn'
+    '/_authed/scan': {
+      id: '/_authed/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof AuthedScanRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/_app/': {
+      id: '/_authed/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedAppIndexRouteImport
+      parentRoute: typeof AuthedAppRoute
+    }
+    '/_authed/_app/books/$isbn': {
+      id: '/_authed/_app/books/$isbn'
       path: '/books/$isbn'
       fullPath: '/books/$isbn'
-      preLoaderRoute: typeof AuthedBooksIsbnRouteImport
-      parentRoute: typeof AuthedRoute
+      preLoaderRoute: typeof AuthedAppBooksIsbnRouteImport
+      parentRoute: typeof AuthedAppRoute
     }
   }
 }
 
+interface AuthedAppRouteChildren {
+  AuthedAppIndexRoute: typeof AuthedAppIndexRoute
+  AuthedAppBooksIsbnRoute: typeof AuthedAppBooksIsbnRoute
+}
+
+const AuthedAppRouteChildren: AuthedAppRouteChildren = {
+  AuthedAppIndexRoute: AuthedAppIndexRoute,
+  AuthedAppBooksIsbnRoute: AuthedAppBooksIsbnRoute,
+}
+
+const AuthedAppRouteWithChildren = AuthedAppRoute._addFileChildren(
+  AuthedAppRouteChildren,
+)
+
 interface AuthedRouteChildren {
-  AuthedIndexRoute: typeof AuthedIndexRoute
-  AuthedBooksIsbnRoute: typeof AuthedBooksIsbnRoute
+  AuthedAppRoute: typeof AuthedAppRouteWithChildren
+  AuthedScanRoute: typeof AuthedScanRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedIndexRoute: AuthedIndexRoute,
-  AuthedBooksIsbnRoute: AuthedBooksIsbnRoute,
+  AuthedAppRoute: AuthedAppRouteWithChildren,
+  AuthedScanRoute: AuthedScanRoute,
 }
 
 const AuthedRouteWithChildren =
