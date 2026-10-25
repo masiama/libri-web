@@ -1,7 +1,8 @@
-import { SignInButton, SignOutButton, useUser } from "@clerk/react";
+import { SignInButton, useUser } from "@clerk/react";
 import { Link, Outlet, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { AccountMenu } from "#/components/AccountMenu";
 import { BookScannerModal } from "#/components/BookScannerModal";
 import { ScanIcon } from "#/components/icons";
 import { Logo } from "#/components/Logo";
@@ -47,11 +48,7 @@ const AuthedLayout = () => {
           <span className="lg:hidden">Scan</span>
           <span className="max-lg:hidden">Scan books</span>
         </button>
-        <SignOutButton>
-          <button type="button" className="lb-btn lb-btn--outline">
-            Sign out
-          </button>
-        </SignOutButton>
+        <AccountMenu />
       </header>
       <BookScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} />
       <Outlet />
