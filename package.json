@@ -31,6 +31,7 @@
     "@tanstack/router-plugin": "^1.168.40",
     "@yudiel/react-qr-scanner": "^2.6.0",
     "clsx": "^2.1.1",
+    "lucide-react": "^1.61.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwindcss": "^4.3.3"

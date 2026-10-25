@@ -1,5 +1,5 @@
 import { SignInButton, SignOutButton, useUser } from "@clerk/react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Navigate, createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { BookScannerModal } from "#/components/BookScannerModal";
@@ -7,15 +7,20 @@ import { Cover } from "#/components/Cover";
 import { ScanIcon } from "#/components/icons";
 import { CoverSkeleton } from "#/components/Loaders";
 import { Logo } from "#/components/Logo";
+import { Pager } from "#/components/Pager";
 import { getGetImageUrl, useListBooks } from "#/generated/api/endpoints";
 import { formatAuthors } from "#/lib/cover";
+import { parsePage } from "#/lib/page";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const BookList = () => {
-  const [page, setPage] = useState(0);
-  const { data, isLoading } = useListBooks({ page, size: PAGE_SIZE });
+  const { page } = Route.useSearch();
+  const { data, isLoading } = useListBooks({ page: page - 1, size: PAGE_SIZE });
   const pageMeta = data?.page;
+  const lastPage = pageMeta && Math.max(1, pageMeta.totalPages ?? 1);
+
+  if (lastPage && page > lastPage) return <Navigate to="/" search={{ page: lastPage }} replace />;
 
   return (
     <>
@@ -41,27 +46,12 @@ const BookList = () => {
               </div>
             ))}
       </div>
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          className="lb-btn lb-btn--soft"
-          disabled={page === 0}
-          onClick={() => setPage((p) => p - 1)}
-        >
-          Prev
-        </button>
-        <span>
-          Page {page + 1} of {pageMeta?.totalPages ?? 1}
-        </span>
-        <button
-          type="button"
-          className="lb-btn lb-btn--soft"
-          disabled={pageMeta === undefined || page + 1 >= pageMeta.totalPages!}
-          onClick={() => setPage((p) => p + 1)}
-        >
-          Next
-        </button>
-      </div>
+      <Pager
+        page={page}
+        totalPages={lastPage}
+        totalItems={pageMeta?.totalElements}
+        pageSize={PAGE_SIZE}
+      />
     </>
   );
 };
@@ -113,4 +103,8 @@ const Home = () => {
   );
 };
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>) => ({ page: parsePage(search.page) }),
+  search: { middlewares: [stripSearchParams({ page: 1 })] },
+  component: Home,
+});
