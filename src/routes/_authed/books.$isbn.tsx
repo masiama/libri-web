@@ -24,14 +24,15 @@ const COVER_WIDTH = "md:w-70 lg:w-75";
 const TITLE =
   "lb-title text-2xl leading-[1.2] md:text-[1.875rem] md:leading-[1.18] lg:text-[2.75rem] lg:leading-[1.1] lg:tracking-[-1.2px]";
 
-const BackLink = ({ page, className }: { page?: number; className?: string }) => {
+const BackLink = ({ className }: { className?: string }) => {
   const router = useRouter();
   const canGoBack = useCanGoBack();
+  const { libraryPage = 1, libraryQuery = "" } = useLocation({ select: (l) => l.state });
 
   return (
     <Link
       to="/"
-      search={{ page: page ?? 1 }}
+      search={{ page: libraryPage, q: libraryQuery }}
       className={clsx(
         "lb-btn lb-btn--icon md:w-auto md:gap-1.5 md:pr-4.5 md:pl-3 md:text-[0.9375rem]",
         className,
@@ -153,7 +154,7 @@ const Hero = ({ busy, cover, details, share, children }: React.PropsWithChildren
         aria-label="Breadcrumb"
         className="text-muted flex items-center gap-2 text-sm max-lg:hidden"
       >
-        <BackLink page={libraryPage} className="bg-surface min-h-10 shadow-sm" />
+        <BackLink className="bg-surface min-h-10 shadow-sm" />
         {libraryPage && (
           <>
             <span aria-hidden="true">·</span>
@@ -166,7 +167,7 @@ const Hero = ({ busy, cover, details, share, children }: React.PropsWithChildren
         className="bg-hero flex flex-col gap-4.5 rounded-b-[36px] bg-[radial-gradient(var(--hero-pattern)_1.6px,transparent_1.8px)] bg-size-[18px_18px] px-4 pt-4 pb-7 md:gap-6 md:rounded-b-[44px] md:px-8 md:pt-5 md:pb-10 lg:rounded-[36px] lg:px-14 lg:py-12"
       >
         <div className="flex justify-between lg:hidden">
-          <BackLink page={libraryPage} className="bg-chrome" />
+          <BackLink className="bg-chrome" />
           {share}
         </div>
         <div className="flex flex-col items-center gap-5 md:flex-row md:items-end md:gap-9 lg:items-center lg:gap-12">

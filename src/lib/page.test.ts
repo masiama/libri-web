@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { expect, test } from "vitest";
 
-import { pageItems, parsePage } from "./page";
+import { pageItems, parsePage, parseQuery } from "./page";
 
 test.each([
   [undefined, 1],
@@ -69,5 +69,29 @@ test("pager keeps first, last and current page in order, gaps hide 2+ pages", ()
         numbers.forEach((n, i) => i > 0 && expect(n).toBeGreaterThan(numbers[i - 1]));
       },
     ),
+  );
+});
+
+test.each([
+  [undefined, ""],
+  [null, ""],
+  ["", ""],
+  ["   ", ""],
+  ["tolkien", "tolkien"],
+  ["  the hobbit ", "the hobbit"],
+  [1984, "1984"],
+  [true, "true"],
+  [{ q: "x" }, ""],
+  [["dune"], ""],
+])("parseQuery(%o) is %o", (value, expected) => {
+  expect(parseQuery(value)).toBe(expected);
+});
+
+test("result is always a trimmed string", () => {
+  fc.assert(
+    fc.property(fc.anything(), (value) => {
+      const q = parseQuery(value);
+      expect(typeof q === "string" && q === q.trim()).toBe(true);
+    }),
   );
 });
