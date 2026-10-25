@@ -26,8 +26,13 @@ const BookList = () => {
           ))}
         </ul>
       )}
-      <div>
-        <button type="button" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          className="lb-btn lb-btn--soft"
+          disabled={page === 0}
+          onClick={() => setPage((p) => p - 1)}
+        >
           Prev
         </button>
         <span>
@@ -35,6 +40,7 @@ const BookList = () => {
         </span>
         <button
           type="button"
+          className="lb-btn lb-btn--soft"
           disabled={pageMeta === undefined || page + 1 >= pageMeta.totalPages!}
           onClick={() => setPage((p) => p + 1)}
         >
@@ -55,7 +61,9 @@ const Home = () => {
     return (
       <div className="p-8">
         <SignInButton mode="modal">
-          <button type="button">Sign in</button>
+          <button type="button" className="lb-btn lb-btn--primary">
+            Sign in
+          </button>
         </SignInButton>
       </div>
     );
@@ -64,12 +72,16 @@ const Home = () => {
   return (
     <div className="p-8">
       <p>{user.primaryEmailAddress?.emailAddress}</p>
-      <SignOutButton>
-        <button type="button">Sign out</button>
-      </SignOutButton>
-      <button type="button" onClick={() => setScannerOpen(true)}>
-        Scan barcode
-      </button>
+      <div className="flex gap-3">
+        <SignOutButton>
+          <button type="button" className="lb-btn lb-btn--outline">
+            Sign out
+          </button>
+        </SignOutButton>
+        <button type="button" className="lb-btn lb-btn--frog" onClick={() => setScannerOpen(true)}>
+          Scan barcode
+        </button>
+      </div>
       <BookScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} />
       <BookList />
     </div>
