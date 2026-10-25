@@ -36,6 +36,17 @@ function ean13CheckDigit(first12: string): number {
   return (10 - (sum % 10)) % 10;
 }
 
+export function toIsbn13(code: string): string | null {
+  const d = code.toUpperCase().replace(/[^\dX]/g, "");
+  if (/^\d{13}$/.test(d)) return ean13CheckDigit(d) === Number(d[12]) ? d : null;
+  if (!/^\d{9}[\dX]$/.test(d)) return null;
+
+  const sum = d.split("").reduce((s, c, i) => s + (c === "X" ? 10 : Number(c)) * (10 - i), 0);
+  if (sum % 11) return null;
+  const first12 = `978${d.slice(0, 9)}`;
+  return first12 + ean13CheckDigit(first12);
+}
+
 type Ean13Encoding = {
   digits: string;
   bits: string;
@@ -43,9 +54,8 @@ type Ean13Encoding = {
 };
 
 export function encodeEan13(code: string): Ean13Encoding | null {
-  let d = code.replace(/\D/g, "");
-  if (d.length === 12) d += ean13CheckDigit(d);
-  if (d.length !== 13 || ean13CheckDigit(d) !== Number(d[12])) return null;
+  const d = toIsbn13(code);
+  if (!d) return null;
 
   const parity = PARITY[Number(d[0])];
   let bits = "101";
