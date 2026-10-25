@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-const DinoBody = ({ strokeWidth }: { strokeWidth: number }) => (
+export const DinoBody = ({ strokeWidth }: { strokeWidth: number }) => (
   <>
     <path
       fill="none"

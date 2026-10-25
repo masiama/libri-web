@@ -11,6 +11,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { ApiError } from "#/api/mutator";
 import { Barcode } from "#/components/Barcode";
 import { Cover } from "#/components/Cover";
+import { ReadingRex } from "#/components/Dino";
 import { Check, ChevronLeft } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import { toIsbn13 } from "#/lib/ean13";
@@ -82,17 +83,20 @@ const IsbnCard = ({ isbn }: { isbn: string }) => {
   );
 };
 
-const BarcodeCard = ({ isbn }: { isbn: string }) => {
+const BarcodeCard = ({ isbn, coverSrc }: { isbn: string; coverSrc: string }) => {
   const isbn13 = toIsbn13(isbn);
   if (!isbn13) return null;
 
   return (
-    <div className="lb-card flex flex-col justify-center gap-2.5 rounded-3xl p-4.5 md:gap-2 md:px-5 md:py-4 lg:px-5.5">
-      <h2 className="text-muted text-xs font-semibold tracking-[0.6px] uppercase">
-        This book’s real barcode
-      </h2>
-      <Barcode code={isbn13} module={1.6} height={52} />
-      <p className="text-muted m-0 text-[0.8125rem] md:hidden">Yes, you can scan this one too.</p>
+    <div className="lb-card flex items-center gap-3 rounded-3xl pt-4.5 pr-4.5 pb-3.5 pl-5">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 md:gap-2">
+        <h2 className="text-muted text-xs font-semibold tracking-[0.6px] uppercase">
+          This book’s real barcode
+        </h2>
+        <Barcode code={isbn13} module={1.6} height={52} />
+        <p className="text-muted m-0 text-[0.8125rem]">Yes, you can scan this one too.</p>
+      </div>
+      <ReadingRex isbn={isbn} coverSrc={coverSrc} className="shrink-0 self-end" />
     </div>
   );
 };
@@ -176,6 +180,8 @@ const BookDetail = () => {
     );
   }
 
+  const coverSrc = getGetImageUrl(book.isbn, { side: "front" });
+
   return (
     <Hero
       cover={
@@ -184,7 +190,7 @@ const BookDetail = () => {
             isbn={book.isbn}
             title={book.title}
             authors={book.authors}
-            src={getGetImageUrl(book.isbn, { side: "front" })}
+            src={coverSrc}
             width={210}
             priority
             className={COVER_WIDTH}
@@ -194,7 +200,7 @@ const BookDetail = () => {
       details={
         <>
           <IsbnCard isbn={book.isbn} />
-          <BarcodeCard isbn={book.isbn} />
+          <BarcodeCard isbn={book.isbn} coverSrc={coverSrc} />
         </>
       }
     >
