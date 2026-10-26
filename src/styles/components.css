@@ -131,6 +131,11 @@ body {
   background: var(--primary-soft);
   color: var(--primary-ink);
 }
+.lb-chip--frog {
+  background: var(--frog);
+  color: var(--on-frog);
+  font-weight: 700;
+}
 
 .lb-field {
   display: flex;

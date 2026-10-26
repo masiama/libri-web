@@ -125,7 +125,7 @@ const ManualField = ({ onFind }: { onFind: (code: string) => void }) => {
 
   return (
     <form
-      className="lb-field gap-2 md:rounded-3xl md:bg-(--scan-panel) md:p-4.5 lg:gap-2.5 lg:rounded-xl lg:p-5.5"
+      className="lb-field mx-3 gap-2 md:mx-0 md:rounded-3xl md:bg-(--scan-panel) md:p-4.5 lg:gap-2.5 lg:rounded-xl lg:p-5.5"
       onSubmit={(e) => {
         e.preventDefault();
         if (!input.current) return;
@@ -184,12 +184,58 @@ const HINT = "text-muted absolute inset-x-0 text-center text-[0.8125rem] md:text
 const CARD =
   "absolute inset-x-3 bottom-3 md:right-auto md:bottom-5 md:left-5 md:w-100 lg:bottom-6 lg:left-6 lg:w-105";
 
+type ScannedBook = { id: number; book: BookDTO };
+
+const SessionList = ({ rows }: { rows: ScannedBook[] }) => (
+  <section
+    aria-labelledby="session-title"
+    className="flex flex-1 flex-col gap-2 rounded-t-3xl bg-(--scan-list) px-3 py-3.5 md:gap-2.5 md:rounded-3xl md:p-4.5 lg:min-h-0 lg:rounded-xl lg:p-5.5"
+  >
+    <h2
+      id="session-title"
+      className="font-display text-[0.8125rem] font-semibold md:text-[0.9375rem]"
+    >
+      This session
+    </h2>
+    {rows.length ? (
+      <ul className="grid content-start gap-2 md:grid-cols-2 lg:min-h-0 lg:grid-cols-1 lg:gap-2.5 lg:overflow-y-auto">
+        {rows.map(({ id, book }) => (
+          <li
+            key={id}
+            className="flex min-w-0 items-center gap-2.5 rounded-[14px] bg-(--scan-row) p-1.5 md:gap-3 md:rounded-2xl md:p-2"
+          >
+            <Cover
+              isbn={book.isbn}
+              title={book.title}
+              authors={book.authors}
+              src={getGetImageUrl(book.isbn, { side: "front" })}
+              width={32}
+              className="md:w-10"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[0.8125rem] font-semibold md:text-sm">{book.title}</p>
+              <p className="text-muted truncate text-xs">{formatAuthors(book.authors)}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="text-muted text-[0.8125rem]">Nothing yet. Your first book will land here.</p>
+    )}
+  </section>
+);
+
 const Scan = () => {
-  const [code, setCode] = useState<string>();
+  const [scan, setScan] = useState<{ id: number; code: string }>();
+  const scanCode = (code: string) => setScan((s) => ({ id: (s?.id ?? 0) + 1, code }));
+  const code = scan?.code;
   const fix = code ? suggestIsbnFix(code) : null;
   const lookup = useGetBookByIsbn(code ?? "", {
     query: { enabled: !!code && !fix, retry: (count, err) => !isNotFound(err) && count < 3 },
   });
+  const [rows, setRows] = useState<ScannedBook[]>([]);
+  if (scan && lookup.data && rows[0]?.id !== scan.id)
+    setRows([{ id: scan.id, book: lookup.data }, ...rows]);
   const looking = lookup.isLoading;
   const notFound = isNotFound(lookup.error);
   const reticle = looking ? "locked" : fix ? "error" : notFound ? "warn" : undefined;
@@ -202,11 +248,14 @@ const Scan = () => {
         <h1 className="font-display text-[0.9375rem] font-semibold md:text-[1.1875rem] lg:text-xl">
           Keep scanning
         </h1>
+        <p className="lb-chip lb-chip--frog ml-auto py-1.5 md:px-3.5 md:py-1.75 md:text-sm">
+          {rows.length} scanned
+        </p>
       </header>
       <div className="flex min-h-0 flex-1 flex-col gap-3 pt-3 md:gap-5 md:px-7 md:pt-5 md:pb-7 lg:flex-row lg:gap-8 lg:px-10 lg:py-8">
         <div className="lb-camera mx-3 h-95 shrink-0 md:mx-0 md:h-150 lg:h-auto lg:min-w-0 lg:flex-1">
           <Scanner
-            onScan={(detected) => setCode(detected[0]?.rawValue)}
+            onScan={(detected) => detected[0] && scanCode(detected[0].rawValue)}
             components={{ finder: false }}
             sound={false}
             styles={{ container: { position: "absolute", inset: 0, aspectRatio: "auto" } }}
@@ -240,8 +289,9 @@ const Scan = () => {
             {fix && <Unreadable fix={fix} />}
           </div>
         </div>
-        <aside className="mx-3 flex flex-col gap-3 md:mx-0 md:gap-4 lg:w-95 lg:shrink-0 lg:gap-5 xl:w-110">
-          <ManualField onFind={setCode} />
+        <aside className="flex flex-1 flex-col gap-3 md:gap-4 lg:min-h-0 lg:w-95 lg:flex-none lg:gap-5 xl:w-110">
+          <ManualField onFind={scanCode} />
+          <SessionList rows={rows} />
         </aside>
       </div>
     </main>
