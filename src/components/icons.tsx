@@ -11,6 +11,7 @@ export {
   Moon,
   Search,
   Share,
+  Sun,
   X,
 } from "lucide-react";
 

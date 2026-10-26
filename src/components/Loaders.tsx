@@ -17,3 +17,13 @@ export const ScanSweep = ({ label }: { label: string }) => (
     <div className="lb-sweep__laser" />
   </div>
 );
+
+export const BarSpinner = ({ label }: { label: string }) => (
+  <output className="lb-barspin" aria-label={label}>
+    <span />
+    <span />
+    <span />
+    <span />
+    <span />
+  </output>
+);
