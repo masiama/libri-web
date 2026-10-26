@@ -1,0 +1,150 @@
+import { useSignUp } from "@clerk/react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+
+import {
+  AuthFooter,
+  AuthShell,
+  fieldClass,
+  formClass,
+  labelClass,
+  submitClass,
+} from "#/components/AuthShell";
+import { CircleAlert } from "#/components/icons";
+import { BarSpinner } from "#/components/Loaders";
+import { clerkErrorCode, validateRedirectSearch, signUpProblem, type SignUpProblem } from "#/lib/auth";
+import { useLeaveWhenSignedIn } from "#/lib/useLeaveWhenSignedIn";
+
+const FieldError = ({ id, problem }: { id: string; problem: SignUpProblem }) => (
+  <p
+    id={id}
+    role="alert"
+    className="text-danger-text m-0 flex items-start gap-1.5 text-sm leading-[1.4] font-semibold"
+  >
+    <CircleAlert size={16} strokeWidth={2.4} aria-hidden className="mt-0.5 shrink-0" />
+    <span>
+      {problem.text}
+      {problem.taken && (
+        <>
+          {" "}
+          <Link to="/sign-in" search={(prev) => prev} className="underline">
+            Sign in instead
+          </Link>
+        </>
+      )}
+    </span>
+  </p>
+);
+
+const SignUpForm = () => {
+  const { signUp } = useSignUp();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [pending, setPending] = useState(false);
+  const [problem, setProblem] = useState<SignUpProblem>();
+
+  const onSubmit = async (e: React.SubmitEvent) => {
+    e.preventDefault();
+    setPending(true);
+    setProblem(undefined);
+    const showProblem = (next: SignUpProblem) => {
+      setProblem(next);
+      setPending(false);
+    };
+
+    const { error } = await signUp.password({ emailAddress: email, password });
+    if (error || signUp.status !== "complete") {
+      return showProblem(signUpProblem(error ? clerkErrorCode(error) : undefined));
+    }
+    if ((await signUp.finalize()).error) showProblem(signUpProblem());
+  };
+
+  const problemFor = (field: SignUpProblem["field"]) =>
+    problem?.field === field ? problem : undefined;
+  const formError = problemFor("form");
+  const emailError = problemFor("email");
+  const passwordError = problemFor("password");
+  const ariaFor = (field: "email" | "password") => ({
+    "aria-invalid": !!problemFor(field),
+    "aria-describedby": problemFor(field) ? `sign-up-${field}-error` : undefined,
+  });
+
+  return (
+    <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
+      {formError && (
+        <div
+          role="alert"
+          className="bg-danger-soft text-danger-text flex items-start gap-2.5 rounded-2xl px-3.5 py-3 text-sm leading-[1.4] font-semibold"
+        >
+          <CircleAlert size={20} strokeWidth={2.4} aria-hidden className="mt-px shrink-0" />
+          <span>{formError.text}</span>
+        </div>
+      )}
+      <div className="lb-field">
+        <label htmlFor="sign-up-email" className={labelClass}>
+          Email
+        </label>
+        <input
+          id="sign-up-email"
+          type="email"
+          autoComplete="email"
+          required
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          {...ariaFor("email")}
+          className={fieldClass}
+        />
+        {emailError && <FieldError id="sign-up-email-error" problem={emailError} />}
+      </div>
+      <div className="lb-field">
+        <label htmlFor="sign-up-password" className={labelClass}>
+          Password
+        </label>
+        <input
+          id="sign-up-password"
+          type="password"
+          autoComplete="new-password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          {...ariaFor("password")}
+          className={fieldClass}
+        />
+        {passwordError && <FieldError id="sign-up-password-error" problem={passwordError} />}
+      </div>
+      <button type="submit" disabled={pending} className={submitClass}>
+        {pending ? (
+          <>
+            <BarSpinner label="Creating account" />
+            Creating account…
+          </>
+        ) : (
+          "Create account"
+        )}
+      </button>
+    </form>
+  );
+};
+
+const SignUpPage = () => {
+  const { redirect } = Route.useSearch();
+  if (useLeaveWhenSignedIn(redirect)) return null;
+
+  return (
+    <AuthShell title="Join Libri" subtitle="Scan a barcode, find the book.">
+      <SignUpForm />
+      <AuthFooter>
+        Already have an account?{" "}
+        <Link to="/sign-in" search={(prev) => prev} className="text-primary font-bold underline">
+          Sign in
+        </Link>
+      </AuthFooter>
+    </AuthShell>
+  );
+};
+
+export const Route = createFileRoute("/sign-up")({
+  validateSearch: validateRedirectSearch,
+  component: SignUpPage,
+});
