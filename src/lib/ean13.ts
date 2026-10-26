@@ -47,6 +47,12 @@ export function toIsbn13(code: string): string | null {
   return first12 + ean13CheckDigit(first12);
 }
 
+export function suggestIsbnFix(code: string): string | null {
+  const d = code.replace(/\D/g, "");
+  if (!/^97[89]\d{10}$/.test(d) || toIsbn13(d)) return null;
+  return d.slice(0, 12) + ean13CheckDigit(d.slice(0, 12));
+}
+
 type Ean13Encoding = {
   digits: string;
   bits: string;

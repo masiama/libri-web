@@ -2,7 +2,7 @@ import { getToken } from "@clerk/react";
 
 export type BodyType<T> = T;
 
-export class ApiError extends Error {
+class ApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
@@ -52,5 +52,7 @@ export const customFetch = async <T>(
     contentType.includes("application/json") ? await response.json() : await response.text()
   ) as T;
 };
+
+export const isNotFound = (error: unknown) => error instanceof ApiError && error.status === 404;
 
 export default customFetch;

@@ -3,16 +3,51 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
+import { isNotFound } from "#/api/mutator";
 import { Cover } from "#/components/Cover";
-import { ChevronRight, Keyboard, X } from "#/components/icons";
+import { ConfusedDino } from "#/components/Dino";
+import { ChevronRight, CircleAlert, Keyboard, X } from "#/components/icons";
 import { ScanSweep } from "#/components/Loaders";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import type { BookDTO } from "#/generated/api/models";
 import { useBackClick } from "#/lib/back";
 import { formatAuthors } from "#/lib/cover";
+import { suggestIsbnFix } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
 
 type LookupCardProps = { code: string; looking: boolean; book?: BookDTO };
+
+const NotInCatalogue = ({ code }: { code: string }) => (
+  <div className="flex items-center gap-3 rounded-[20px] bg-(--scan-panel) p-3.5">
+    <ConfusedDino size={56} question={false} />
+    <div className="min-w-0 flex-1">
+      <p className="text-[0.9375rem] font-bold">Not in our catalogue</p>
+      <p className="text-muted text-[0.8125rem] leading-[1.45]">
+        We don’t have this book yet. Try another, or search by title.
+      </p>
+      <p className="text-muted/70 mt-0.5 font-mono text-xs">{formatIsbn(code)}</p>
+    </div>
+  </div>
+);
+
+const Unreadable = ({ fix }: { fix: string }) => (
+  <div className="bg-danger-soft flex items-start gap-3 rounded-[20px] p-3.5">
+    <CircleAlert size={22} strokeWidth={2.4} aria-hidden className="text-danger mt-px shrink-0" />
+    <div>
+      <p className="text-danger-text text-[0.9375rem] font-bold">We can’t read this barcode</p>
+      <p className="text-danger-text/90 mt-0.5 text-[0.8125rem] leading-[1.45]">
+        It isn’t a valid book or store code. Try the barcode on the back cover.
+      </p>
+      <p className="text-danger-text/90 mt-1 text-[0.8125rem]">
+        Did you mean{" "}
+        <span className="font-mono">
+          …{fix.slice(9, 12)} {fix[12]}
+        </span>
+        ?
+      </p>
+    </div>
+  </div>
+);
 
 const LookupCard = ({ code, looking, book }: LookupCardProps) => {
   if (looking) {
@@ -146,11 +181,19 @@ const ManualField = ({ onFind }: { onFind: (code: string) => void }) => {
 
 const HINT = "text-muted absolute inset-x-0 text-center text-[0.8125rem] md:text-[0.9375rem]";
 
+const CARD =
+  "absolute inset-x-3 bottom-3 md:right-auto md:bottom-5 md:left-5 md:w-100 lg:bottom-6 lg:left-6 lg:w-105";
+
 const Scan = () => {
   const [code, setCode] = useState<string>();
-  const lookup = useGetBookByIsbn(code ?? "", { query: { enabled: !!code } });
+  const fix = code ? suggestIsbnFix(code) : null;
+  const lookup = useGetBookByIsbn(code ?? "", {
+    query: { enabled: !!code && !fix, retry: (count, err) => !isNotFound(err) && count < 3 },
+  });
   const looking = lookup.isLoading;
-  const hint = (text: string) => (looking ? "Got it" : text);
+  const notFound = isNotFound(lookup.error);
+  const reticle = looking ? "locked" : fix ? "error" : notFound ? "warn" : undefined;
+  const hint = (text: string) => (looking ? "Got it" : reticle ? "" : text);
 
   return (
     <main className="lb-scan flex flex-col pt-4 md:pt-0 lg:h-dvh">
@@ -168,16 +211,12 @@ const Scan = () => {
             sound={false}
             styles={{ container: { position: "absolute", inset: 0, aspectRatio: "auto" } }}
           />
-          <div
-            aria-hidden
-            className="lb-reticle max-md:top-[40%] lg:w-90"
-            data-state={looking ? "locked" : undefined}
-          >
+          <div aria-hidden className="lb-reticle max-md:top-[40%] lg:w-90" data-state={reticle}>
             <span className="lb-reticle__corner" />
             <span className="lb-reticle__corner" />
             <span className="lb-reticle__corner" />
             <span className="lb-reticle__corner" />
-            {!looking && <span className="lb-reticle__laser" />}
+            {!reticle && <span className="lb-reticle__laser" />}
           </div>
           <p className={clsx(HINT, "top-4 md:hidden")}>
             {hint("Point at the barcode on the back")}
@@ -188,9 +227,18 @@ const Scan = () => {
           <p className={clsx(HINT, "top-[70%] max-lg:hidden")}>
             {hint("Hold the back cover up to your webcam")}
           </p>
-          <output className="absolute inset-x-3 bottom-3 md:right-auto md:bottom-5 md:left-5 md:w-100 lg:bottom-6 lg:left-6 lg:w-105">
-            {code && <LookupCard code={code} looking={looking} book={lookup.data} />}
+          <output className={CARD}>
+            {code &&
+              !fix &&
+              (notFound ? (
+                <NotInCatalogue code={code} />
+              ) : (
+                <LookupCard code={code} looking={looking} book={lookup.data} />
+              ))}
           </output>
+          <div role="alert" className={CARD}>
+            {fix && <Unreadable fix={fix} />}
+          </div>
         </div>
         <aside className="mx-3 flex flex-col gap-3 md:mx-0 md:gap-4 lg:w-95 lg:shrink-0 lg:gap-5 xl:w-110">
           <ManualField onFind={setCode} />
