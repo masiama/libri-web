@@ -435,6 +435,11 @@ body {
     background-position: 120px 0;
   }
 }
+.lb-skeleton-text {
+  height: 10px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+}
 
 .lb-bars {
   background-image: repeating-linear-gradient(
@@ -729,6 +734,34 @@ body {
 .lb-found__title {
   font: 800 1.25rem/1.1 var(--font-display);
   color: var(--found-accent);
+}
+
+.lb-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 420px;
+  margin: 48px auto;
+  padding: 32px 24px;
+  text-align: center;
+}
+@media (min-width: 768px) {
+  .lb-state {
+    padding: 36px 28px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+  }
+}
+.lb-state__icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 @media (prefers-reduced-motion: reduce) {

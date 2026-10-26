@@ -3,6 +3,7 @@ export {
   Check,
   ChevronLeft,
   ChevronRight,
+  CircleAlert,
   Keyboard,
   Moon,
   Search,

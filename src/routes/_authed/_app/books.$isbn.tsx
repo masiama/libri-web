@@ -1,12 +1,12 @@
 import { Link, createFileRoute, useLocation } from "@tanstack/react-router";
 import clsx from "clsx";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { ApiError } from "#/api/mutator";
 import { Barcode } from "#/components/Barcode";
 import { Cover } from "#/components/Cover";
-import { ReadingRex } from "#/components/Dino";
-import { ArrowUpRight, Check, ChevronLeft, Share } from "#/components/icons";
+import { ConfusedDino, ReadingRex } from "#/components/Dino";
+import { ArrowUpRight, Check, ChevronLeft, CircleAlert, Share } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import { useBackClick } from "#/lib/back";
 import { toIsbn13 } from "#/lib/ean13";
@@ -18,8 +18,12 @@ const isNotFound = (error: unknown) => error instanceof ApiError && error.status
 const COVER_WIDTH = "md:w-70 lg:w-75";
 const TITLE =
   "lb-title text-2xl leading-[1.2] md:text-[1.875rem] md:leading-[1.18] lg:text-[2.75rem] lg:leading-[1.1] lg:tracking-[-1.2px]";
+const HERO_BAR = "lb-skeleton-text bg-(--hero-pattern)";
+const PAGE = "lg:px-column flex flex-col lg:gap-5 lg:pt-6 lg:pb-16";
+const STATE_TITLE = "font-display m-0 text-[1.375rem] leading-[1.25] font-extrabold";
+const STATE_TEXT = "text-muted m-0 text-[0.9375rem] leading-normal";
 
-const BackLink = ({ className }: { className?: string }) => {
+const LibraryLink = ({ className, children }: React.PropsWithChildren<{ className?: string }>) => {
   const onBack = useBackClick();
   const { libraryPage = 1, libraryQuery = "" } = useLocation({ select: (l) => l.state });
 
@@ -27,15 +31,42 @@ const BackLink = ({ className }: { className?: string }) => {
     <Link
       to="/"
       search={{ page: libraryPage, q: libraryQuery }}
-      className={clsx(
-        "lb-btn lb-btn--icon md:w-auto md:gap-1.5 md:pr-4.5 md:pl-3 md:text-[0.9375rem]",
-        className,
-      )}
+      className={className}
       onClick={onBack}
     >
-      <ChevronLeft aria-hidden />
-      <span className="max-md:sr-only">Library</span>
+      {children}
     </Link>
+  );
+};
+
+const BackLink = ({ className }: { className?: string }) => (
+  <LibraryLink
+    className={clsx(
+      "lb-btn lb-btn--icon md:w-auto md:gap-1.5 md:pr-4.5 md:pl-3 md:text-[0.9375rem]",
+      className,
+    )}
+  >
+    <ChevronLeft aria-hidden />
+    <span className="max-md:sr-only">Library</span>
+  </LibraryLink>
+);
+
+const Breadcrumb = () => {
+  const libraryPage = useLocation({ select: (l) => l.state.libraryPage });
+
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className="text-muted flex items-center gap-2 text-sm max-lg:hidden"
+    >
+      <BackLink className="bg-surface min-h-10 shadow-sm" />
+      {libraryPage && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>Page {libraryPage}</span>
+        </>
+      )}
+    </nav>
   );
 };
 
@@ -135,83 +166,128 @@ const BarcodeCard = ({ isbn, coverSrc }: { isbn: string; coverSrc: string }) => 
 
 type HeroProps = { busy?: boolean; cover?: ReactNode; details?: ReactNode; share?: ReactNode };
 
-const Hero = ({ busy, cover, details, share, children }: React.PropsWithChildren<HeroProps>) => {
-  const libraryPage = useLocation({ select: (l) => l.state.libraryPage });
-
-  return (
-    <main className="lg:px-column flex flex-col lg:gap-5 lg:pt-6 lg:pb-16">
-      <nav
-        aria-label="Breadcrumb"
-        className="text-muted flex items-center gap-2 text-sm max-lg:hidden"
-      >
-        <BackLink className="bg-surface min-h-10 shadow-sm" />
-        {libraryPage && (
-          <>
-            <span aria-hidden="true">·</span>
-            <span>Page {libraryPage}</span>
-          </>
-        )}
-      </nav>
-      <section
+const Hero = ({ busy, cover, details, share, children }: React.PropsWithChildren<HeroProps>) => (
+  <main className={PAGE}>
+    <Breadcrumb />
+    <section className="bg-hero flex flex-col gap-4.5 rounded-b-[36px] bg-[radial-gradient(var(--hero-pattern)_1.6px,transparent_1.8px)] bg-size-[18px_18px] px-4 pt-4 pb-7 md:gap-6 md:rounded-b-[44px] md:px-8 md:pt-5 md:pb-10 lg:rounded-[36px] lg:px-14 lg:py-12">
+      <div className="flex justify-between lg:hidden">
+        <BackLink className="bg-chrome" />
+        {share}
+      </div>
+      <div
         aria-busy={busy}
-        className="bg-hero flex flex-col gap-4.5 rounded-b-[36px] bg-[radial-gradient(var(--hero-pattern)_1.6px,transparent_1.8px)] bg-size-[18px_18px] px-4 pt-4 pb-7 md:gap-6 md:rounded-b-[44px] md:px-8 md:pt-5 md:pb-10 lg:rounded-[36px] lg:px-14 lg:py-12"
+        className="flex flex-col items-center gap-5 md:flex-row md:items-end md:gap-9 lg:items-center lg:gap-12"
       >
-        <div className="flex justify-between lg:hidden">
-          <BackLink className="bg-chrome" />
-          {share}
+        {cover && <div className="flex shrink-0 justify-center lg:w-105">{cover}</div>}
+        <div className="flex flex-col items-center gap-2 text-center max-md:self-stretch md:min-w-0 md:flex-1 md:items-start md:gap-3 md:pb-2 md:text-left lg:gap-3.5 lg:pb-0">
+          {children}
         </div>
-        <div className="flex flex-col items-center gap-5 md:flex-row md:items-end md:gap-9 lg:items-center lg:gap-12">
-          {cover && <div className="flex shrink-0 justify-center lg:w-105">{cover}</div>}
-          <div className="flex flex-col items-center gap-2 text-center md:min-w-0 md:flex-1 md:items-start md:gap-3 md:pb-2 md:text-left lg:gap-3.5 lg:pb-0">
-            {children}
-          </div>
-        </div>
-      </section>
-      {details && (
-        <div className="flex flex-col gap-4 p-5 md:grid md:grid-cols-2 md:items-start md:gap-4.5 md:px-8 md:py-7 lg:grid-cols-[380px_520px] lg:gap-5 lg:p-0">
-          {details}
-        </div>
-      )}
-    </main>
-  );
-};
+      </div>
+    </section>
+    {details && (
+      <div
+        aria-busy={busy}
+        className="flex flex-col gap-4 p-5 md:grid md:grid-cols-2 md:items-start md:gap-4.5 md:px-8 md:py-7 lg:grid-cols-[380px_520px] lg:gap-5 lg:p-0"
+      >
+        {details}
+      </div>
+    )}
+  </main>
+);
+
+const CardSkeleton = ({ className }: { className: string }) => (
+  <div className={clsx("lb-card flex flex-col justify-center gap-2.5 px-5 py-0", className)}>
+    <div className="lb-skeleton-text w-[30%]" />
+    <div className="lb-skeleton-text w-3/5" />
+  </div>
+);
+
+const StatePage = ({ alert, children }: React.PropsWithChildren<{ alert?: boolean }>) => (
+  <main className={clsx(PAGE, "p-4 md:px-8 md:pt-5")}>
+    <Breadcrumb />
+    <BackLink className="bg-chrome md:bg-surface self-start md:shadow-sm lg:hidden" />
+    <div role={alert ? "alert" : undefined} className="lb-state">
+      {children}
+    </div>
+  </main>
+);
 
 const BookDetail = () => {
   const { isbn } = Route.useParams();
   const {
     data: book,
-    isLoading,
+    isFetching,
     error,
+    refetch,
   } = useGetBookByIsbn(isbn, { query: { retry: (count, err) => !isNotFound(err) && count < 3 } });
+  const retried = useRef(false);
+  const focusAfterRetry = (el: HTMLElement | null) => {
+    if (!el || !retried.current) return;
+    retried.current = false;
+    el.focus();
+  };
 
-  if (isLoading) {
+  if (!book && isFetching && !isNotFound(error)) {
     return (
       <Hero
         busy
         cover={<div className={clsx("lb-skeleton aspect-[1/1.48] w-52.5", COVER_WIDTH)} />}
+        details={
+          <>
+            <CardSkeleton className="h-16 rounded-lg" />
+            <CardSkeleton className="h-35 rounded-3xl" />
+          </>
+        }
+        share={<div className={clsx(HERO_BAR, "size-11 rounded-full")} />}
       >
-        <div className="bg-surface-2 h-6 w-3/5 rounded-xs" />
+        <div className="flex w-full flex-col items-center gap-2.5 md:items-start md:gap-3.5 lg:gap-4">
+          <div className={clsx(HERO_BAR, "h-3.5 w-[70%] md:h-4.5 md:w-[85%] lg:h-7.5 lg:w-3/5")} />
+          <div className={clsx(HERO_BAR, "h-4.5 w-[55%] max-md:hidden lg:hidden")} />
+          <div className={clsx(HERO_BAR, "h-2.5 w-2/5 md:h-3 md:w-[35%] lg:h-3.5 lg:w-[30%]")} />
+          <div className="mt-2 flex w-full gap-3 md:mt-0 md:w-auto lg:mt-2">
+            <div className={clsx(HERO_BAR, "h-13 w-full rounded-full md:w-55")} />
+            <div className={clsx(HERO_BAR, "h-13 w-30 rounded-full max-lg:hidden")} />
+          </div>
+        </div>
       </Hero>
     );
   }
 
   if (!book) {
-    return (
-      <Hero>
-        {isNotFound(error) ? (
-          <>
-            <h1 className={TITLE}>We couldn't find this book</h1>
-            <p className="lb-muted m-0">
-              Nothing in the library has the code <span className="lb-mono">{isbn}</span>.
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 className={TITLE}>This book didn't load</h1>
-            <p className="lb-muted m-0">Check your connection, then reload the page.</p>
-          </>
-        )}
-      </Hero>
+    return isNotFound(error) ? (
+      <StatePage>
+        <ConfusedDino size={120} />
+        <h1 ref={focusAfterRetry} tabIndex={-1} className={STATE_TITLE}>
+          We couldn’t find this book
+        </h1>
+        <p className={STATE_TEXT}>
+          It isn’t in our catalogue yet. Try another book, or search by title.
+        </p>
+        <LibraryLink className="lb-btn lb-btn--soft mt-1.5 px-5.5 text-[0.9375rem]">
+          Back to library
+        </LibraryLink>
+      </StatePage>
+    ) : (
+      <StatePage alert>
+        <div className="lb-state__icon">
+          <CircleAlert size={30} aria-hidden />
+        </div>
+        <h1 className={STATE_TITLE}>This book didn’t load</h1>
+        <p className={STATE_TEXT}>
+          Something went wrong on our side or with your connection. Try again in a moment.
+        </p>
+        <button
+          ref={focusAfterRetry}
+          type="button"
+          className="lb-btn lb-btn--primary mt-1.5 px-6 text-[0.9375rem]"
+          onClick={() => {
+            retried.current = true;
+            void refetch();
+          }}
+        >
+          Try again
+        </button>
+      </StatePage>
     );
   }
 
@@ -240,7 +316,9 @@ const BookDetail = () => {
       }
       share={<ShareButton title={book.title} />}
     >
-      <h1 className={TITLE}>{book.title}</h1>
+      <h1 ref={focusAfterRetry} tabIndex={-1} className={TITLE}>
+        {book.title}
+      </h1>
       {book.authors.length > 0 && (
         <p className="text-primary-ink m-0 text-[1.0625rem] font-semibold md:text-[1.1875rem] lg:text-xl">
           {book.authors.join(", ")}
