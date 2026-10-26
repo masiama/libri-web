@@ -3,21 +3,62 @@ import { Scanner } from "@yudiel/react-qr-scanner";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
-import { Keyboard, X } from "#/components/icons";
+import { Cover } from "#/components/Cover";
+import { ChevronRight, Keyboard, X } from "#/components/icons";
+import { ScanSweep } from "#/components/Loaders";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
+import type { BookDTO } from "#/generated/api/models";
 import { useBackClick } from "#/lib/back";
+import { formatAuthors } from "#/lib/cover";
+import { formatIsbn } from "#/lib/isbn";
 
-const BookInfo = ({ code }: { code: string }) => {
-  const { data: book, isLoading, error } = useGetBookByIsbn(code);
+type LookupCardProps = { code: string; looking: boolean; book?: BookDTO };
 
-  if (isLoading) return <p>Looking up book...</p>;
-  if (error || !book) return <p>No book found for code {code}.</p>;
+const LookupCard = ({ code, looking, book }: LookupCardProps) => {
+  if (looking) {
+    return (
+      <div className="flex flex-col gap-2.5 rounded-[20px] bg-(--scan-panel) p-3.5">
+        <p className="flex justify-between gap-3 text-sm">
+          <span className="font-semibold">Looking it up…</span>
+          <span className="text-muted font-mono">{formatIsbn(code)}</span>
+        </p>
+        <ScanSweep label="Looking it up" />
+      </div>
+    );
+  }
+
+  if (!book)
+    return (
+      <p className="rounded-[20px] bg-(--scan-panel) p-3.5 text-sm">
+        No book found for code {code}.
+      </p>
+    );
 
   return (
-    <div>
-      <img src={getGetImageUrl(book.isbn)} alt={book.title} width={120} />
-      <h3>{book.title}</h3>
-      <p>{book.authors.join(", ")}</p>
+    <div className="lb-found">
+      <Cover
+        isbn={book.isbn}
+        title={book.title}
+        authors={book.authors}
+        src={getGetImageUrl(book.isbn, { side: "front" })}
+        width={56}
+        className="md:w-16"
+      />
+      <div className="min-w-0 flex-1">
+        <p className="lb-found__title md:text-[1.375rem]">Found!</p>
+        <p className="line-clamp-2 text-[0.9375rem] font-bold md:text-base">{book.title}</p>
+        <p className="truncate text-[0.8125rem] opacity-90 md:text-sm">
+          {formatAuthors(book.authors)}
+        </p>
+      </div>
+      <Link
+        to="/books/$isbn"
+        params={{ isbn: book.isbn }}
+        aria-label={`Open ${book.title}`}
+        className="bg-on-primary/18 hover:bg-on-primary/28 flex size-(--tap) shrink-0 items-center justify-center rounded-full"
+      >
+        <ChevronRight size={20} strokeWidth={2.4} aria-hidden />
+      </Link>
     </div>
   );
 };
@@ -107,6 +148,9 @@ const HINT = "text-muted absolute inset-x-0 text-center text-[0.8125rem] md:text
 
 const Scan = () => {
   const [code, setCode] = useState<string>();
+  const lookup = useGetBookByIsbn(code ?? "", { query: { enabled: !!code } });
+  const looking = lookup.isLoading;
+  const hint = (text: string) => (looking ? "Got it" : text);
 
   return (
     <main className="lb-scan flex flex-col pt-4 md:pt-0 lg:h-dvh">
@@ -121,26 +165,35 @@ const Scan = () => {
           <Scanner
             onScan={(detected) => setCode(detected[0]?.rawValue)}
             components={{ finder: false }}
+            sound={false}
             styles={{ container: { position: "absolute", inset: 0, aspectRatio: "auto" } }}
           />
-          <div aria-hidden className="lb-reticle max-md:top-[40%] lg:w-90">
+          <div
+            aria-hidden
+            className="lb-reticle max-md:top-[40%] lg:w-90"
+            data-state={looking ? "locked" : undefined}
+          >
             <span className="lb-reticle__corner" />
             <span className="lb-reticle__corner" />
             <span className="lb-reticle__corner" />
             <span className="lb-reticle__corner" />
-            <span className="lb-reticle__laser" />
+            {!looking && <span className="lb-reticle__laser" />}
           </div>
-          <p className={clsx(HINT, "top-4 md:hidden")}>Point at the barcode on the back</p>
+          <p className={clsx(HINT, "top-4 md:hidden")}>
+            {hint("Point at the barcode on the back")}
+          </p>
           <p className={clsx(HINT, "top-5 max-md:hidden lg:hidden")}>
-            Hold the back cover inside the frame
+            {hint("Hold the back cover inside the frame")}
           </p>
           <p className={clsx(HINT, "top-[70%] max-lg:hidden")}>
-            Hold the back cover up to your webcam
+            {hint("Hold the back cover up to your webcam")}
           </p>
+          <output className="absolute inset-x-3 bottom-3 md:right-auto md:bottom-5 md:left-5 md:w-100 lg:bottom-6 lg:left-6 lg:w-105">
+            {code && <LookupCard code={code} looking={looking} book={lookup.data} />}
+          </output>
         </div>
         <aside className="mx-3 flex flex-col gap-3 md:mx-0 md:gap-4 lg:w-95 lg:shrink-0 lg:gap-5 xl:w-110">
           <ManualField onFind={setCode} />
-          <output className="block">{code && <BookInfo code={code} />}</output>
         </aside>
       </div>
     </main>
