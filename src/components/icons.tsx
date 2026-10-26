@@ -1,6 +1,9 @@
 export {
   ArrowUpRight,
+  Camera,
+  CameraOff,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   CircleAlert,

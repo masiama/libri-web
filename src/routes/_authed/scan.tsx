@@ -1,12 +1,20 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Scanner } from "@yudiel/react-qr-scanner";
+import { Scanner, useDevices } from "@yudiel/react-qr-scanner";
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
 import { isNotFound } from "#/api/mutator";
 import { Cover } from "#/components/Cover";
 import { ConfusedDino } from "#/components/Dino";
-import { ChevronRight, CircleAlert, Keyboard, X } from "#/components/icons";
+import {
+  Camera,
+  CameraOff,
+  ChevronDown,
+  ChevronRight,
+  CircleAlert,
+  Keyboard,
+  X,
+} from "#/components/icons";
 import { ScanSweep } from "#/components/Loaders";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import type { BookDTO } from "#/generated/api/models";
@@ -132,7 +140,7 @@ const ManualField = ({ onFind }: { onFind: (code: string) => void }) => {
         const code = input.current.value.replace(/[\s-]/g, "");
         if (!code) return;
         onFind(code);
-        input.current.value = "";
+        e.currentTarget.reset();
         if (isDesktop()) input.current.focus();
       }}
     >
@@ -178,6 +186,28 @@ const ManualField = ({ onFind }: { onFind: (code: string) => void }) => {
     </form>
   );
 };
+
+type CamState = "ask" | "on" | "blocked";
+
+const NOTICE_TEXT = "text-muted max-w-80 text-[0.8125rem] leading-[1.45] md:text-[0.9375rem]";
+
+const CameraNotice = ({
+  icon: Icon,
+  title,
+  role,
+  children,
+}: React.PropsWithChildren<{ icon: typeof Camera; title: string; role?: "alert" }>) => (
+  <div
+    role={role}
+    className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 p-6 text-center"
+  >
+    <span className="flex size-14 items-center justify-center rounded-full bg-(--scan-row)">
+      <Icon size={26} aria-hidden />
+    </span>
+    <h2 className="font-display text-base font-semibold md:text-lg">{title}</h2>
+    {children}
+  </div>
+);
 
 const HINT = "text-muted absolute inset-x-0 text-center text-[0.8125rem] md:text-[0.9375rem]";
 
@@ -239,7 +269,27 @@ const Scan = () => {
   const looking = lookup.isLoading;
   const notFound = isNotFound(lookup.error);
   const reticle = looking ? "locked" : fix ? "error" : notFound ? "warn" : undefined;
-  const hint = (text: string) => (looking ? "Got it" : reticle ? "" : text);
+  const [camera, setCamera] = useState<CamState | undefined>(() =>
+    navigator.permissions ? undefined : "ask",
+  );
+  const [deviceId, setDeviceId] = useState("");
+  const cameras = useDevices().filter((d) => d.deviceId);
+  const live = camera === "on";
+  const block = () => {
+    setCamera("blocked");
+    document.getElementById("manual-code")?.focus();
+  };
+
+  useEffect(() => {
+    navigator.permissions
+      ?.query({ name: "camera" as PermissionName })
+      .then(({ state }) =>
+        state === "denied" ? block() : setCamera(state === "granted" ? "on" : "ask"),
+      )
+      .catch(() => setCamera("ask"));
+  }, []);
+
+  const hint = (text: string) => (!live ? "" : looking ? "Got it" : reticle ? "" : text);
 
   return (
     <main className="lb-scan flex flex-col pt-4 md:pt-0 lg:h-dvh">
@@ -254,19 +304,48 @@ const Scan = () => {
       </header>
       <div className="flex min-h-0 flex-1 flex-col gap-3 pt-3 md:gap-5 md:px-7 md:pt-5 md:pb-7 lg:flex-row lg:gap-8 lg:px-10 lg:py-8">
         <div className="lb-camera mx-3 h-95 shrink-0 md:mx-0 md:h-150 lg:h-auto lg:min-w-0 lg:flex-1">
-          <Scanner
-            onScan={(detected) => detected[0] && scanCode(detected[0].rawValue)}
-            components={{ finder: false }}
-            sound={false}
-            styles={{ container: { position: "absolute", inset: 0, aspectRatio: "auto" } }}
-          />
-          <div aria-hidden className="lb-reticle max-md:top-[40%] lg:w-90" data-state={reticle}>
-            <span className="lb-reticle__corner" />
-            <span className="lb-reticle__corner" />
-            <span className="lb-reticle__corner" />
-            <span className="lb-reticle__corner" />
-            {!reticle && <span className="lb-reticle__laser" />}
-          </div>
+          {live && (
+            <Scanner
+              onScan={(detected) => detected[0] && scanCode(detected[0].rawValue)}
+              onError={({ kind }) => kind !== "aborted" && block()}
+              constraints={deviceId ? { deviceId: { exact: deviceId } } : undefined}
+              components={{ finder: false }}
+              sound={false}
+              styles={{ container: { position: "absolute", inset: 0, aspectRatio: "auto" } }}
+            />
+          )}
+          {camera === "ask" && (
+            <CameraNotice icon={Camera} title="Let Libri use your camera">
+              <p className={NOTICE_TEXT}>
+                It reads barcodes only while this screen is open. Nothing is recorded.
+              </p>
+
+              <button
+                type="button"
+                className="lb-btn lb-btn--primary mt-1"
+                onClick={() => setCamera("on")}
+              >
+                Allow camera
+              </button>
+            </CameraNotice>
+          )}
+          {camera === "blocked" && (
+            <CameraNotice icon={CameraOff} title="Camera is blocked" role="alert">
+              <p className={NOTICE_TEXT}>
+                Allow the camera in your browser’s site settings, then reload. Or type the ISBN
+                below.
+              </p>
+            </CameraNotice>
+          )}
+          {live && (
+            <div aria-hidden className="lb-reticle max-md:top-[40%] lg:w-90" data-state={reticle}>
+              <span className="lb-reticle__corner" />
+              <span className="lb-reticle__corner" />
+              <span className="lb-reticle__corner" />
+              <span className="lb-reticle__corner" />
+              {!reticle && <span className="lb-reticle__laser" />}
+            </div>
+          )}
           <p className={clsx(HINT, "top-4 md:hidden")}>
             {hint("Point at the barcode on the back")}
           </p>
@@ -290,6 +369,32 @@ const Scan = () => {
           </div>
         </div>
         <aside className="flex flex-1 flex-col gap-3 md:gap-4 lg:min-h-0 lg:w-95 lg:flex-none lg:gap-5 xl:w-110">
+          {cameras.length > 1 && (
+            <div className="lb-field gap-2.5 rounded-xl bg-(--scan-panel) p-5.5 max-lg:hidden">
+              <label htmlFor="camera-select" className="lb-field__label font-display">
+                Camera
+              </label>
+              <div className="relative">
+                <select
+                  id="camera-select"
+                  className="lb-input h-14 appearance-none rounded-[14px] bg-(--scan-surface) pr-11 text-lg"
+                  value={deviceId || cameras[0].deviceId}
+                  onChange={(e) => setDeviceId(e.target.value)}
+                >
+                  {cameras.map((c, i) => (
+                    <option key={c.deviceId} value={c.deviceId}>
+                      {c.label || `Camera ${i + 1}`}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={20}
+                  aria-hidden
+                  className="text-muted pointer-events-none absolute top-1/2 right-4 -translate-y-1/2"
+                />
+              </div>
+            </div>
+          )}
           <ManualField onFind={scanCode} />
           <SessionList rows={rows} />
         </aside>
