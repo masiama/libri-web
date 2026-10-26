@@ -2,7 +2,7 @@ import { Link, createFileRoute, useLocation } from "@tanstack/react-router";
 import clsx from "clsx";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import { ApiError } from "#/api/mutator";
+import { isNotFound } from "#/api/mutator";
 import { Barcode } from "#/components/Barcode";
 import { Cover } from "#/components/Cover";
 import { ConfusedDino, ReadingRex } from "#/components/Dino";
@@ -12,8 +12,6 @@ import { useBackClick } from "#/lib/back";
 import { toIsbn13 } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
 import { shareLink } from "#/lib/share";
-
-const isNotFound = (error: unknown) => error instanceof ApiError && error.status === 404;
 
 const COVER_WIDTH = "md:w-70 lg:w-75";
 const TITLE =

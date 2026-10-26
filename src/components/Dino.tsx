@@ -4,7 +4,13 @@ import { coverPaletteIndex } from "#/lib/cover";
 
 import { DinoBody } from "./Logo";
 
-export const ConfusedDino = ({ size = 140 }: { size?: number }) => (
+export const ConfusedDino = ({
+  size = 140,
+  question = true,
+}: {
+  size?: number;
+  question?: boolean;
+}) => (
   <svg
     viewBox="-40 -80 540 520"
     width={size}
@@ -20,15 +26,17 @@ export const ConfusedDino = ({ size = 140 }: { size?: number }) => (
       strokeLinecap="round"
       style={{ stroke: "var(--dino-eye)" }}
     />
-    <text
-      x={440}
-      y={10}
-      fontSize={80}
-      fontWeight={800}
-      style={{ fontFamily: "var(--font-display)", fill: "var(--primary)" }}
-    >
-      ?
-    </text>
+    {question && (
+      <text
+        x={440}
+        y={10}
+        fontSize={80}
+        fontWeight={800}
+        style={{ fontFamily: "var(--font-display)", fill: "var(--primary)" }}
+      >
+        ?
+      </text>
+    )}
   </svg>
 );
 

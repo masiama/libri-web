@@ -1,7 +1,7 @@
 import fc from "fast-check";
 import { expect, test } from "vitest";
 
-import { encodeEan13, toIsbn13 } from "./ean13";
+import { encodeEan13, suggestIsbnFix, toIsbn13 } from "./ean13";
 
 const digits = (n: number) => fc.stringMatching(new RegExp(`^\\d{${n}}$`));
 
@@ -162,4 +162,38 @@ test("an ISBN-10 draws the same bars as its ISBN-13", () => {
     digits: "9780261102217",
     bits: encodeEan13("9780261102217")!.bits,
   });
+});
+
+test.each([
+  ["9780261102218", "9780261102217"],
+  ["9780141036145", "9780141036144"],
+  ["979-10-323-0556-1", "9791032305560"],
+])("suggests a fix for %s", (code, fix) => {
+  expect(suggestIsbnFix(code)).toBe(fix);
+});
+
+test.each([
+  ["valid ISBN-13", "9780261102217"],
+  ["store barcode with a bad check digit", "4006381333932"],
+  ["store SKU", "SKU-12345"],
+  ["ISBN-10 with a bad check digit", "0261102215"],
+  ["12 digits", "978026110221"],
+  ["empty", ""],
+])("suggests nothing for a %s", (_, code) => {
+  expect(suggestIsbnFix(code)).toBeNull();
+});
+
+test("a bad 978/979 code always gets a valid ISBN-13 with the same first twelve digits", () => {
+  fc.assert(
+    fc.property(fc.constantFrom("978", "979"), digits(10), (prefix, rest) => {
+      const code = prefix + rest;
+      const fix = suggestIsbnFix(code);
+      if (toIsbn13(code)) {
+        expect(fix).toBeNull();
+      } else {
+        expect(fix?.slice(0, 12)).toBe(code.slice(0, 12));
+        expect(toIsbn13(fix!)).toBe(fix);
+      }
+    }),
+  );
 });
