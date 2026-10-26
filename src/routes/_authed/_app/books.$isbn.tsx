@@ -6,7 +6,7 @@ import { ApiError } from "#/api/mutator";
 import { Barcode } from "#/components/Barcode";
 import { Cover } from "#/components/Cover";
 import { ReadingRex } from "#/components/Dino";
-import { Check, ChevronLeft, Share } from "#/components/icons";
+import { ArrowUpRight, Check, ChevronLeft, Share } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import { useBackClick } from "#/lib/back";
 import { toIsbn13 } from "#/lib/ean13";
@@ -246,8 +246,25 @@ const BookDetail = () => {
           {book.authors.join(", ")}
         </p>
       )}
-      <div className="mt-4.5 max-lg:hidden">
-        <ShareButton title={book.title} labelled />
+      <div
+        className={clsx(
+          "mt-2.5 flex flex-wrap gap-3 max-md:self-stretch md:mt-1.5 lg:mt-2",
+          !book.url && "max-lg:hidden",
+        )}
+      >
+        <a
+          href={book.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="lb-btn lb-btn--lg lb-btn--primary pr-5 pl-5.5 font-bold whitespace-nowrap max-md:w-full"
+        >
+          Buy on {book.sourceName}
+          <ArrowUpRight size={18} strokeWidth={2.4} aria-hidden />{" "}
+          <span className="lb-sr-only">(opens in a new tab)</span>
+        </a>
+        <div className="max-lg:hidden">
+          <ShareButton title={book.title} labelled />
+        </div>
       </div>
     </Hero>
   );
