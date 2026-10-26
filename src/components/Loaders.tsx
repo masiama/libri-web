@@ -9,3 +9,11 @@ export const CoverSkeleton = () => (
     </div>
   </div>
 );
+
+export const ScanSweep = ({ label }: { label: string }) => (
+  // An indeterminate <progress> draws the browser's own bar under the laser.
+  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+  <div className="lb-sweep lb-bars" role="progressbar" aria-label={label}>
+    <div className="lb-sweep__laser" />
+  </div>
+);
