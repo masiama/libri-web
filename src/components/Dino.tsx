@@ -4,11 +4,11 @@ import { coverPaletteIndex } from "#/lib/cover";
 
 import { DinoBody } from "./Logo";
 
-export const ConfusedDino = () => (
+export const ConfusedDino = ({ size = 140 }: { size?: number }) => (
   <svg
     viewBox="-40 -80 540 520"
-    width={140}
-    height={(140 * 520) / 540}
+    width={size}
+    height={(size * 520) / 540}
     aria-hidden="true"
     style={{ color: "var(--logo)" }}
   >
