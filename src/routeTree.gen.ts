@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as AuthedAppRouteImport } from './routes/_authed/_app'
 import { Route as AuthedScanRouteImport } from './routes/_authed/scan'
 import { Route as AuthedAppIndexRouteImport } from './routes/_authed/_app/index'
@@ -17,6 +18,11 @@ import { Route as AuthedAppBooksIsbnRouteImport } from './routes/_authed/_app/bo
 
 const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedAppRoute = AuthedAppRouteImport.update({
@@ -41,17 +47,20 @@ const AuthedAppBooksIsbnRoute = AuthedAppBooksIsbnRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthedAppIndexRoute
+  '/sign-in': typeof SignInRoute
   '/scan': typeof AuthedScanRoute
   '/books/$isbn': typeof AuthedAppBooksIsbnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthedAppIndexRoute
+  '/sign-in': typeof SignInRoute
   '/scan': typeof AuthedScanRoute
   '/books/$isbn': typeof AuthedAppBooksIsbnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
+  '/sign-in': typeof SignInRoute
   '/_authed/_app': typeof AuthedAppRouteWithChildren
   '/_authed/scan': typeof AuthedScanRoute
   '/_authed/_app/': typeof AuthedAppIndexRoute
@@ -59,12 +68,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/scan' | '/books/$isbn'
+  fullPaths: '/' | '/sign-in' | '/scan' | '/books/$isbn'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/scan' | '/books/$isbn'
+  to: '/' | '/sign-in' | '/scan' | '/books/$isbn'
   id:
     | '__root__'
     | '/_authed'
+    | '/sign-in'
     | '/_authed/_app'
     | '/_authed/scan'
     | '/_authed/_app/'
@@ -73,6 +83,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
+  SignInRoute: typeof SignInRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/_app': {
@@ -144,6 +162,7 @@ const AuthedRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
+  SignInRoute: SignInRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,22 +1,12 @@
-import { SignInButton, useUser } from "@clerk/react";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { useUser } from "@clerk/react";
+import { Navigate, Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
 
 const AuthedLayout = () => {
   const { isLoaded, isSignedIn } = useUser();
+  const { href } = useLocation();
 
   if (!isLoaded) return null;
-
-  if (!isSignedIn) {
-    return (
-      <div className="p-8">
-        <SignInButton mode="modal">
-          <button type="button" className="lb-btn lb-btn--primary">
-            Sign in
-          </button>
-        </SignInButton>
-      </div>
-    );
-  }
+  if (!isSignedIn) return <Navigate to="/sign-in" search={{ redirect: href }} replace />;
 
   return <Outlet />;
 };

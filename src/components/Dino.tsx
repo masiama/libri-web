@@ -40,6 +40,32 @@ export const ConfusedDino = ({
   </svg>
 );
 
+export const HappyDino = ({
+  size = 140,
+  color = "var(--logo)",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <svg
+    viewBox="-40 -80 540 520"
+    width={size}
+    height={(size * 520) / 540}
+    aria-hidden="true"
+    style={{ color }}
+  >
+    <DinoBody strokeWidth={30} />
+    <path d="M300 135h120" stroke="currentColor" strokeWidth={30} />
+    <path
+      d="M323 82q22-30 44 0"
+      fill="none"
+      strokeWidth={14}
+      strokeLinecap="round"
+      style={{ stroke: "var(--dino-eye)" }}
+    />
+  </svg>
+);
+
 type ReadingRexProps = { isbn: string; coverSrc: string; className?: string };
 
 export const ReadingRex = ({ isbn, coverSrc, className }: ReadingRexProps) => {
