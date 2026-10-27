@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { isNotFound } from "#/api/mutator";
 import { Barcode } from "#/components/Barcode";
-import { Cover } from "#/components/Cover";
+import { Book3D } from "#/components/Book3D";
 import { ConfusedDino, ReadingRex } from "#/components/Dino";
 import { ArrowUpRight, Check, ChevronLeft, CircleAlert, Share } from "#/components/icons";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
@@ -13,7 +13,7 @@ import { toIsbn13 } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
 import { shareLink } from "#/lib/share";
 
-const COVER_WIDTH = "md:w-70 lg:w-75";
+const COVER_WIDTH = "w-52.5 md:w-70 lg:w-75";
 const TITLE =
   "lb-title text-2xl leading-[1.2] md:text-[1.875rem] md:leading-[1.18] lg:text-[2.75rem] lg:leading-[1.1] lg:tracking-[-1.2px]";
 const HERO_BAR = "lb-skeleton-text bg-(--hero-pattern)";
@@ -229,7 +229,7 @@ const BookDetail = () => {
     return (
       <Hero
         busy
-        cover={<div className={clsx("lb-skeleton aspect-[1/1.48] w-52.5", COVER_WIDTH)} />}
+        cover={<div className={clsx("lb-skeleton aspect-[1/1.48]", COVER_WIDTH)} />}
         details={
           <>
             <CardSkeleton className="h-16 rounded-lg" />
@@ -293,19 +293,7 @@ const BookDetail = () => {
 
   return (
     <Hero
-      cover={
-        <div className="rounded-(--radius-cover) shadow-(--shadow-cover)">
-          <Cover
-            isbn={book.isbn}
-            title={book.title}
-            authors={book.authors}
-            src={coverSrc}
-            width={210}
-            priority
-            className={COVER_WIDTH}
-          />
-        </div>
-      }
+      cover={<Book3D key={book.isbn} book={book} />}
       details={
         <>
           <IsbnCard isbn={book.isbn} />

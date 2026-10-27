@@ -809,6 +809,147 @@ body {
   color: var(--danger);
 }
 
+.lb-book3d {
+  --d: calc(var(--w) * 0.2);
+  position: relative;
+  display: block;
+  width: var(--w);
+  aspect-ratio: 1 / 1.48;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  touch-action: none;
+  perspective: 1100px;
+  cursor: grab;
+}
+.lb-book3d[data-dragging="true"] {
+  cursor: grabbing;
+}
+.lb-book3d[data-mode="tilt"] {
+  cursor: default;
+}
+.lb-book3d__group {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50% calc(var(--d) / -2);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.lb-book3d[data-dragging="true"] .lb-book3d__group {
+  transition: none;
+}
+.lb-book3d__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.lb-book3d__face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.lb-book3d__front,
+.lb-book3d__back {
+  overflow: hidden;
+}
+.lb-book3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--cover-shadow);
+  filter: blur(20px);
+  transform: translateY(18px) scaleX(var(--shadow-width, 1));
+  transition:
+    transform var(--dur-slow) var(--ease-out),
+    opacity var(--dur);
+}
+.lb-book3d[data-dragging="true"]::before {
+  transition: opacity var(--dur);
+}
+.lb-book3d[data-open="true"]::before {
+  opacity: 0;
+}
+.lb-book3d__front .lb-cover {
+  border-radius: 0;
+}
+.lb-book3d__pages-r,
+.lb-book3d__pages-t,
+.lb-book3d__pages-b {
+  position: absolute;
+  background: repeating-linear-gradient(0deg, var(--page-light) 0 2px, var(--page-dark) 2px 3px);
+  transition: opacity var(--dur);
+}
+.lb-book3d__pages-r {
+  background: repeating-linear-gradient(90deg, var(--page-light) 0 2px, var(--page-dark) 2px 3px);
+  top: 0;
+  left: 100%;
+  width: var(--d);
+  height: 100%;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+}
+.lb-book3d__pages-t,
+.lb-book3d__pages-b {
+  left: 0;
+  width: 100%;
+  height: var(--d);
+}
+.lb-book3d__pages-t {
+  top: 0;
+  transform-origin: top center;
+  transform: rotateX(-90deg);
+}
+.lb-book3d__pages-b {
+  bottom: 0;
+  transform-origin: bottom center;
+  transform: rotateX(90deg);
+}
+.lb-book3d[data-open="true"] :is(.lb-book3d__pages-r, .lb-book3d__pages-t, .lb-book3d__pages-b) {
+  opacity: 0;
+}
+.lb-book3d__hinge {
+  position: absolute;
+  top: 0;
+  right: 100%;
+  width: var(--d);
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: right center;
+  transition: transform 620ms var(--ease-out);
+}
+.lb-book3d__hinge--back {
+  width: var(--w);
+  transition-duration: 680ms;
+}
+.lb-book3d-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--book-scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur);
+}
+.lb-book3d-scrim[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lb-book3d[data-open="true"] {
+  z-index: 41;
+}
+.lb-book3d[data-open="true"]:focus-visible {
+  outline: none;
+}
+.lb-book3d[data-open="true"]:focus-visible .lb-book3d__front {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
