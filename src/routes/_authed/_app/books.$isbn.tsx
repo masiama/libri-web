@@ -68,25 +68,28 @@ const Breadcrumb = () => {
   );
 };
 
-const useCopied = () => {
-  const [copiedAt, setCopiedAt] = useState(0);
+const FEEDBACK_MS = { copied: 2000, failed: 3000 };
+
+const useCopyFeedback = () => {
+  const [feedback, setFeedback] = useState<{ kind: "copied" | "failed" } | null>(null);
 
   useEffect(() => {
-    if (!copiedAt) return;
-    const timer = setTimeout(() => setCopiedAt(0), 2000);
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), FEEDBACK_MS[feedback.kind]);
     return () => clearTimeout(timer);
-  }, [copiedAt]);
+  }, [feedback]);
 
-  return [copiedAt > 0, (copied: boolean) => setCopiedAt(copied ? Date.now() : 0)] as const;
+  return [feedback?.kind, (kind: "copied" | "failed") => setFeedback({ kind })] as const;
 };
 
 const ShareButton = ({ title, labelled }: { title: string; labelled?: boolean }) => {
-  const [copied, setCopied] = useCopied();
+  const [feedback, setFeedback] = useCopyFeedback();
+  const copied = feedback === "copied";
   const Icon = copied ? Check : Share;
 
   const share = async () => {
     const result = await shareLink({ title, url: window.location.href });
-    if (result !== "cancelled") setCopied(result === "copied");
+    if (result === "copied" || result === "failed") setFeedback(result);
   };
 
   return (
@@ -111,19 +114,30 @@ const ShareButton = ({ title, labelled }: { title: string; labelled?: boolean })
         </button>
       )}
       <output className="lb-sr-only">{copied && "Link copied"}</output>
+      {feedback === "failed" && (
+        <div
+          role="alert"
+          className="lb-toast lb-toast--error fixed bottom-6 left-1/2 z-30 -translate-x-1/2 shadow-md"
+        >
+          Couldn’t copy the link
+        </div>
+      )}
     </>
   );
 };
 
 const IsbnCard = ({ isbn }: { isbn: string }) => {
-  const [copied, setCopied] = useCopied();
+  const [feedback, setFeedback] = useCopyFeedback();
+  const copied = feedback === "copied";
+  const text = useRef<HTMLDivElement>(null);
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(isbn);
-      setCopied(true);
+      setFeedback("copied");
     } catch {
-      setCopied(false);
+      setFeedback("failed");
+      if (text.current) getSelection()?.selectAllChildren(text.current);
     }
   };
 
@@ -131,15 +145,22 @@ const IsbnCard = ({ isbn }: { isbn: string }) => {
     <div className="lb-card flex min-h-16 items-center gap-3 rounded-lg py-2.5 pr-2.5 pl-5">
       <div className="min-w-0 flex-1">
         <div className="text-muted text-[0.8125rem]">ISBN</div>
-        <div className="font-mono text-[1.0625rem] font-medium tracking-[0.5px]">
+        <div ref={text} className="font-mono text-[1.0625rem] font-medium tracking-[0.5px]">
           {formatIsbn(isbn)}
         </div>
       </div>
-      <button type="button" className="lb-btn lb-btn--soft min-h-11 px-4.5 text-sm" onClick={copy}>
+      <button
+        type="button"
+        className="lb-btn lb-btn--soft min-h-11 px-4.5 text-sm"
+        data-state={feedback}
+        onClick={copy}
+      >
         {copied && <Check size={16} aria-hidden />}
-        {copied ? "Copied" : "Copy"}
+        {copied ? "Copied" : feedback === "failed" ? "Couldn’t copy" : "Copy"}
       </button>
-      <output className="lb-sr-only">{copied && "ISBN copied"}</output>
+      <output className="lb-sr-only">
+        {copied ? "ISBN copied" : feedback === "failed" && "Couldn’t copy the ISBN"}
+      </output>
     </div>
   );
 };

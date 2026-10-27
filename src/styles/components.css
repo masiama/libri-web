@@ -1071,3 +1071,25 @@ body {
 .lb-meter-hint[data-level="3"] {
   color: var(--frog-text);
 }
+
+.lb-btn[data-state="copied"] {
+  background: var(--frog-soft);
+  color: var(--frog-text);
+}
+.lb-btn[data-state="failed"] {
+  background: var(--danger-soft);
+  color: var(--danger-text);
+}
+
+.lb-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  font: 600 0.9375rem/1.4 var(--font-body);
+}
+.lb-toast--error {
+  background: var(--danger-soft);
+  color: var(--danger-text);
+}
