@@ -41,23 +41,30 @@ export const formClass =
 export const AuthShell = ({
   title,
   subtitle,
+  tile = (
+    <div className="bg-surface grid size-24 place-items-center rounded-[30px] shadow-md md:hidden">
+      <HappyDino size={64} />
+    </div>
+  ),
   children,
-}: React.PropsWithChildren<{ title: string; subtitle: string }>) => (
+}: React.PropsWithChildren<{
+  title: string;
+  subtitle: React.ReactNode;
+  tile?: React.ReactNode;
+}>) => (
   <div className="relative lg:grid lg:min-h-dvh lg:grid-cols-2">
     <ThemeButton className="absolute top-4 right-4 z-10 md:top-6 md:right-6" />
     <main className="flex min-h-dvh flex-col items-center px-6 pt-6 pb-8 md:justify-center md:p-12 lg:p-14">
       <div className="lg:bg-surface flex w-full max-w-120 flex-col gap-6 md:gap-7 lg:max-w-105 lg:gap-4 lg:rounded-4xl lg:p-8 lg:shadow-lg">
-        <header className="flex flex-col items-center gap-3.5 pt-5 text-center md:gap-2 md:pt-0 lg:items-start lg:gap-1.5 lg:pt-0 lg:text-left">
-          <div className="bg-surface grid size-24 place-items-center rounded-[30px] shadow-md md:hidden">
-            <HappyDino size={64} />
-          </div>
+        <header className="flex flex-col items-center gap-3.5 pt-5 text-center md:gap-2 md:pt-0 lg:items-start lg:gap-1.5 lg:pt-0 lg:pb-1 lg:text-left">
+          {tile}
           <div className="max-md:hidden lg:hidden">
             <HappyDino size={170} />
           </div>
-          <h1 className="font-display m-0 text-[1.75rem] leading-tight font-extrabold tracking-[-0.02em] md:mt-5 md:text-4xl lg:mt-0">
+          <h1 className="font-display m-0 text-[1.75rem] leading-tight font-extrabold tracking-[-0.02em] md:mt-5 md:text-4xl lg:mt-0 lg:text-[1.75rem]">
             {title}
           </h1>
-          <p className="text-muted m-0 text-[0.9375rem] md:text-[1.0625rem] lg:leading-normal">
+          <p className="text-muted m-0 text-[0.9375rem] md:text-[1.0625rem] lg:text-[0.9375rem] lg:leading-normal">
             {subtitle}
           </p>
         </header>
@@ -69,5 +76,7 @@ export const AuthShell = ({
 );
 
 export const AuthFooter = ({ children }: React.PropsWithChildren) => (
-  <p className="text-muted m-0 text-center text-[0.9375rem] md:text-base">{children}</p>
+  <p className="text-muted m-0 text-center text-[0.9375rem] md:text-base lg:text-[0.9375rem]">
+    {children}
+  </p>
 );

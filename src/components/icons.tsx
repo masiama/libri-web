@@ -8,6 +8,7 @@ export {
   ChevronRight,
   CircleAlert,
   Keyboard,
+  Mail,
   Moon,
   Search,
   Share,

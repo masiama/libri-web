@@ -1,5 +1,7 @@
 import { isClerkAPIResponseError } from "@clerk/react/errors";
 
+const TOO_MANY = "Too many attempts. Please wait a few minutes before trying again.";
+
 export const safeRedirect = (value: unknown) =>
   typeof value === "string" && /^\/(?![/\\])/.test(value) && !/^\/sign-(in|up)(?![\w-])/.test(value)
     ? value
@@ -22,10 +24,7 @@ export const signInProblem = (code?: string): SignInProblem => {
         kind: "mismatch",
       };
     case "too_many_requests":
-      return {
-        text: "Too many attempts. Please wait a few minutes before trying again.",
-        kind: "limited",
-      };
+      return { text: TOO_MANY, kind: "limited" };
     case "needs_second_factor":
       return { text: "Additional verification is required for this account.", kind: "other" };
     default:
@@ -49,11 +48,30 @@ export const signUpProblem = (code?: string): SignUpProblem => {
     case "form_password_length_too_short":
       return { text: "Use at least 8 characters.", field: "password" };
     case "too_many_requests":
-      return {
-        text: "Too many attempts. Please wait a few minutes before trying again.",
-        field: "form",
-      };
+      return { text: TOO_MANY, field: "form" };
     default:
       return { text: "Something went wrong. Please try again.", field: "form" };
   }
 };
+
+export type CodeProblem = { text: string; kind: "wrong" | "expired" | "limited" | "other" };
+
+export const codeProblem = (code?: string): CodeProblem => {
+  switch (code) {
+    case "form_code_incorrect":
+      return { text: "That code isn’t right. Check the email and try again.", kind: "wrong" };
+    case "verification_expired":
+      return { text: "This code has expired. We can send you a fresh one.", kind: "expired" };
+    case "verification_failed":
+      return { text: "Too many wrong tries. We can send you a fresh code.", kind: "expired" };
+    case "verification_code_rate_limit_exceeded":
+    case "verification_code_too_many_requests":
+    case "too_many_requests":
+      return { text: TOO_MANY, kind: "limited" };
+    default:
+      return { text: "Something went wrong. Please try again.", kind: "other" };
+  }
+};
+
+export const formatCountdown = (seconds: number) =>
+  `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;

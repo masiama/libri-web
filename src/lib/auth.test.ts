@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { safeRedirect, signInProblem, signUpProblem } from "./auth";
+import { codeProblem, formatCountdown, safeRedirect, signInProblem, signUpProblem } from "./auth";
 
 test.each([
   ["/books/9780156012195", "/books/9780156012195"],
@@ -43,4 +43,26 @@ test.each([
   const problem = signUpProblem(code);
   expect(problem.field).toBe(field);
   expect(problem.taken).toBe(taken);
+});
+
+test.each([
+  ["form_code_incorrect", "wrong"],
+  ["verification_expired", "expired"],
+  ["verification_failed", "expired"],
+  ["verification_code_rate_limit_exceeded", "limited"],
+  ["verification_code_too_many_requests", "limited"],
+  ["too_many_requests", "limited"],
+  ["something_else", "other"],
+  [undefined, "other"],
+])("codeProblem(%j) is a %s problem", (code, kind) => {
+  expect(codeProblem(code).kind).toBe(kind);
+});
+
+test.each([
+  [42, "0:42"],
+  [60, "1:00"],
+  [5, "0:05"],
+  [0, "0:00"],
+])("formatCountdown(%j) is %j", (seconds, text) => {
+  expect(formatCountdown(seconds)).toBe(text);
 });
