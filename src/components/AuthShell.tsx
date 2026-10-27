@@ -1,5 +1,8 @@
+import clsx from "clsx";
+
 import { Barcode } from "#/components/Barcode";
 import { HappyDino } from "#/components/Dino";
+import { CircleAlert } from "#/components/icons";
 import { Logo } from "#/components/Logo";
 import { ThemeButton } from "#/components/ThemeToggle";
 
@@ -79,4 +82,18 @@ export const AuthFooter = ({ children }: React.PropsWithChildren) => (
   <p className="text-muted m-0 text-center text-[0.9375rem] md:text-base lg:text-[0.9375rem]">
     {children}
   </p>
+);
+
+export const AuthBanner = ({ id, text, warn }: { id?: string; text: string; warn?: boolean }) => (
+  <div
+    id={id}
+    role="alert"
+    className={clsx(
+      "flex items-start gap-2.5 rounded-2xl px-3.5 py-3 text-sm leading-[1.4] font-semibold",
+      warn ? "bg-warn-soft text-warn-text" : "bg-danger-soft text-danger-text",
+    )}
+  >
+    <CircleAlert size={20} strokeWidth={2.4} aria-hidden className="mt-px shrink-0" />
+    <span>{text}</span>
+  </div>
 );

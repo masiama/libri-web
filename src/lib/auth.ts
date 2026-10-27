@@ -32,6 +32,20 @@ export const signInProblem = (code?: string): SignInProblem => {
   }
 };
 
+export const resetEmailProblem = (code?: string): SignInProblem => {
+  switch (code) {
+    case "form_identifier_not_found":
+      return {
+        text: "We couldn’t find an account with that email. Check the address or create an account.",
+        kind: "other",
+      };
+    case "too_many_requests":
+      return { text: TOO_MANY, kind: "limited" };
+    default:
+      return { text: "Something went wrong. Please try again.", kind: "other" };
+  }
+};
+
 export type SignUpProblem = { text: string; field: "email" | "password" | "form"; taken?: boolean };
 
 export const signUpProblem = (code?: string): SignUpProblem => {

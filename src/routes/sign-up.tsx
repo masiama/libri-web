@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 import {
+  AuthBanner,
   AuthFooter,
   AuthShell,
   fieldClass,
@@ -14,32 +15,14 @@ import { CodeStep, useShowCodeStep, type ClerkError } from "#/components/CodeSte
 import { PeekingDino, type PeekMood } from "#/components/Dino";
 import { CircleAlert } from "#/components/icons";
 import { BarSpinner } from "#/components/Loaders";
+import { PasswordMeter } from "#/components/PasswordMeter";
 import {
   clerkErrorCode,
   validateRedirectSearch,
   signUpProblem,
   type SignUpProblem,
 } from "#/lib/auth";
-import { passwordStrength } from "#/lib/password";
 import { useLeaveWhenSignedIn } from "#/lib/useLeaveWhenSignedIn";
-
-const PasswordMeter = ({ password }: { password: string }) => {
-  const { level, text } = passwordStrength(password);
-  return (
-    <>
-      <div aria-hidden className="lb-meter mt-1">
-        <div className="lb-meter__fill" data-level={level} />
-      </div>
-      <p
-        id="sign-up-password-hint"
-        data-level={level}
-        className="lb-meter-hint m-0 text-[0.8125rem] font-semibold"
-      >
-        {text}
-      </p>
-    </>
-  );
-};
 
 const FieldError = ({ id, problem }: { id: string; problem: SignUpProblem }) => (
   <p
@@ -129,15 +112,7 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
         className="pointer-events-none absolute -top-19.5 right-7 w-30 [clip-path:inset(0_0_14px_0)] lg:right-8"
       />
       <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
-        {formError && (
-          <div
-            role="alert"
-            className="bg-danger-soft text-danger-text flex items-start gap-2.5 rounded-2xl px-3.5 py-3 text-sm leading-[1.4] font-semibold"
-          >
-            <CircleAlert size={20} strokeWidth={2.4} aria-hidden className="mt-px shrink-0" />
-            <span>{formError.text}</span>
-          </div>
-        )}
+        {formError && <AuthBanner text={formError.text} />}
         <div className="lb-field">
           <label htmlFor="sign-up-email" className={labelClass}>
             Email
@@ -177,7 +152,7 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
           {passwordError ? (
             <FieldError id="sign-up-password-error" problem={passwordError} />
           ) : (
-            <PasswordMeter password={password} />
+            <PasswordMeter id="sign-up-password-hint" password={password} />
           )}
         </div>
         <button type="submit" disabled={pending} className={submitClass}>

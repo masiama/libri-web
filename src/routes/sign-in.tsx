@@ -1,9 +1,9 @@
 import { useSignIn } from "@clerk/react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import clsx from "clsx";
 import { useState } from "react";
 
 import {
+  AuthBanner,
   AuthFooter,
   AuthShell,
   fieldClass,
@@ -12,7 +12,6 @@ import {
   submitClass,
 } from "#/components/AuthShell";
 import { CodeStep, useShowCodeStep, type ClerkError } from "#/components/CodeStep";
-import { CircleAlert } from "#/components/icons";
 import { BarSpinner } from "#/components/Loaders";
 import {
   clerkErrorCode,
@@ -68,19 +67,7 @@ const SignInForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
   return (
     <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
       {problem && (
-        <div
-          id="sign-in-problem"
-          role="alert"
-          className={clsx(
-            "flex items-start gap-2.5 rounded-2xl px-3.5 py-3 text-sm leading-[1.4] font-semibold",
-            problem.kind === "limited"
-              ? "bg-warn-soft text-warn-text"
-              : "bg-danger-soft text-danger-text",
-          )}
-        >
-          <CircleAlert size={20} strokeWidth={2.4} aria-hidden className="mt-px shrink-0" />
-          <span>{problem.text}</span>
-        </div>
+        <AuthBanner id="sign-in-problem" text={problem.text} warn={problem.kind === "limited"} />
       )}
       <div className="lb-field">
         <label htmlFor="sign-in-email" className={labelClass}>
@@ -102,9 +89,18 @@ const SignInForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
         />
       </div>
       <div className="lb-field">
-        <label htmlFor="sign-in-password" className={labelClass}>
-          Password
-        </label>
+        <div className="flex items-baseline">
+          <label htmlFor="sign-in-password" className={labelClass}>
+            Password
+          </label>
+          <Link
+            to="/forgot-password"
+            search={(prev) => prev}
+            className="text-primary ml-auto text-[0.8125rem] font-semibold no-underline"
+          >
+            Forgot?
+          </Link>
+        </div>
         <input
           id="sign-in-password"
           type="password"

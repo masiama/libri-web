@@ -1,6 +1,13 @@
 import { expect, test } from "vitest";
 
-import { codeProblem, formatCountdown, safeRedirect, signInProblem, signUpProblem } from "./auth";
+import {
+  codeProblem,
+  formatCountdown,
+  resetEmailProblem,
+  safeRedirect,
+  signInProblem,
+  signUpProblem,
+} from "./auth";
 
 test.each([
   ["/books/9780156012195", "/books/9780156012195"],
@@ -43,6 +50,15 @@ test.each([
   const problem = signUpProblem(code);
   expect(problem.field).toBe(field);
   expect(problem.taken).toBe(taken);
+});
+
+test.each([
+  ["form_identifier_not_found", "other"],
+  ["too_many_requests", "limited"],
+  ["something_else", "other"],
+  [undefined, "other"],
+])("resetEmailProblem(%j) is a %s problem", (code, kind) => {
+  expect(resetEmailProblem(code).kind).toBe(kind);
 });
 
 test.each([
