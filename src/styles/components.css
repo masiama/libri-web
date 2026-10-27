@@ -879,3 +879,46 @@ body {
     transform: translateX(6px);
   }
 }
+
+.lb-meter {
+  height: 12px;
+  color: var(--line);
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 2px,
+    transparent 2px 4px,
+    currentColor 4px 5px,
+    transparent 5px 7px
+  );
+}
+.lb-meter__fill {
+  height: 100%;
+  background-image: inherit;
+}
+.lb-meter__fill[data-level="1"] {
+  width: 33.333%;
+  color: var(--danger);
+}
+.lb-meter__fill[data-level="2"] {
+  width: 66.667%;
+  color: var(--warn);
+}
+.lb-meter__fill[data-level="3"] {
+  width: 100%;
+  color: var(--frog);
+}
+.lb-meter__fill[data-level="0"] {
+  width: 0;
+}
+.lb-meter-hint {
+  color: var(--muted);
+}
+.lb-meter-hint[data-level="1"] {
+  color: var(--danger);
+}
+.lb-meter-hint[data-level="2"] {
+  color: var(--warn-text);
+}
+.lb-meter-hint[data-level="3"] {
+  color: var(--frog-text);
+}

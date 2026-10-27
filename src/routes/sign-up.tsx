@@ -19,7 +19,26 @@ import {
   signUpProblem,
   type SignUpProblem,
 } from "#/lib/auth";
+import { passwordStrength } from "#/lib/password";
 import { useLeaveWhenSignedIn } from "#/lib/useLeaveWhenSignedIn";
+
+const PasswordMeter = ({ password }: { password: string }) => {
+  const { level, text } = passwordStrength(password);
+  return (
+    <>
+      <div aria-hidden className="lb-meter mt-1">
+        <div className="lb-meter__fill" data-level={level} />
+      </div>
+      <p
+        id="sign-up-password-hint"
+        data-level={level}
+        className="lb-meter-hint m-0 text-[0.8125rem] font-semibold"
+      >
+        {text}
+      </p>
+    </>
+  );
+};
 
 const FieldError = ({ id, problem }: { id: string; problem: SignUpProblem }) => (
   <p
@@ -80,9 +99,9 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
   const formError = problemFor("form");
   const emailError = problemFor("email");
   const passwordError = problemFor("password");
-  const ariaFor = (field: "email" | "password") => ({
+  const ariaFor = (field: "email" | "password", fallbackId?: string) => ({
     "aria-invalid": !!problemFor(field),
-    "aria-describedby": problemFor(field) ? `sign-up-${field}-error` : undefined,
+    "aria-describedby": problemFor(field) ? `sign-up-${field}-error` : fallbackId,
   });
 
   return (
@@ -123,11 +142,18 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
           autoComplete="new-password"
           required
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          {...ariaFor("password")}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (passwordError) setProblem(undefined);
+          }}
+          {...ariaFor("password", "sign-up-password-hint")}
           className={fieldClass}
         />
-        {passwordError && <FieldError id="sign-up-password-error" problem={passwordError} />}
+        {passwordError ? (
+          <FieldError id="sign-up-password-error" problem={passwordError} />
+        ) : (
+          <PasswordMeter password={password} />
+        )}
       </div>
       <button type="submit" disabled={pending} className={submitClass}>
         {pending ? (
