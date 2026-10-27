@@ -26,11 +26,13 @@ type CodeStepProps = {
   onVerify: (code: string) => Result;
   onResend: () => Result;
   onChangeEmail: () => void;
+  purpose?: string;
 };
 
 export const CodeStep = ({
   email,
   initialError,
+  purpose,
   onVerify,
   onResend,
   onChangeEmail,
@@ -56,6 +58,7 @@ export const CodeStep = ({
   const expired = problem?.kind === "expired";
   const limited = problem?.kind === "limited";
   const showError = !!problem && !expired && !limited;
+  const hint = expired ? problem.hint : "Paste works too: all six digits land at once.";
 
   const verify = async (next: string) => {
     if (pending || limited) return;
@@ -93,7 +96,8 @@ export const CodeStep = ({
       title="Check your inbox"
       subtitle={
         <>
-          We sent a 6-digit code to <strong className="text-ink">{email}</strong>.
+          We sent a 6-digit code to <strong className="text-ink font-semibold">{email}</strong>.
+          {purpose && ` ${purpose}`}
         </>
       }
       tile={
@@ -112,7 +116,7 @@ export const CodeStep = ({
             <span>{problem.text}</span>
           </div>
         )}
-        <div className="lb-field gap-2.5 lg:order-1">
+        <div className="lb-field gap-2.5 md:order-1">
           <span
             id={`${idPrefix}-code-label`}
             className="lb-field__label md:text-[0.9375rem] lg:text-sm"
@@ -132,7 +136,9 @@ export const CodeStep = ({
             disabled={expired}
             shake={shaking}
             aria-labelledby={`${idPrefix}-code-label`}
-            aria-describedby={showError ? `${idPrefix}-code-problem` : `${idPrefix}-code-hint`}
+            aria-describedby={
+              showError ? `${idPrefix}-code-problem` : hint ? `${idPrefix}-code-hint` : undefined
+            }
           />
           {showError ? (
             <p
@@ -144,16 +150,18 @@ export const CodeStep = ({
               <span>{problem.text}</span>
             </p>
           ) : (
-            <p id={`${idPrefix}-code-hint`} className="lb-field__hint m-0 lg:hidden">
-              Paste works too: all six digits land at once.
-            </p>
+            hint && (
+              <p id={`${idPrefix}-code-hint`} className="lb-field__hint m-0 md:text-sm">
+                {hint}
+              </p>
+            )
           )}
         </div>
         <button
           type="submit"
           disabled={pending}
           aria-disabled={limited || (!expired && code.length < CODE_LENGTH)}
-          className={`${submitClass} lg:order-3`}
+          className={`${submitClass} md:order-3`}
         >
           {pending ? (
             <>
@@ -166,7 +174,7 @@ export const CodeStep = ({
             "Verify"
           )}
         </button>
-        <p className="text-muted m-0 text-center text-sm md:text-base lg:order-2 lg:-mt-1 lg:text-left lg:text-sm">
+        <p className="text-muted m-0 text-center text-sm md:order-2 md:-mt-1 md:text-left">
           Didn’t get it?{" "}
           {secondsLeft > 0 ? (
             <span className="font-mono font-medium">Resend in {formatCountdown(secondsLeft)}</span>
@@ -175,7 +183,7 @@ export const CodeStep = ({
               type="button"
               disabled={pending}
               onClick={() => void resend()}
-              className="text-primary font-bold underline"
+              className="text-primary-ink hover:text-primary-ink-hover font-semibold underline"
             >
               Resend code
             </button>
@@ -184,7 +192,11 @@ export const CodeStep = ({
       </form>
       <AuthFooter>
         Wrong email?{" "}
-        <button type="button" onClick={onChangeEmail} className="text-primary font-bold underline">
+        <button
+          type="button"
+          onClick={onChangeEmail}
+          className="text-primary-ink hover:text-primary-ink-hover font-semibold underline"
+        >
           Change it
         </button>
       </AuthFooter>

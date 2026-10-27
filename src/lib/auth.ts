@@ -32,6 +32,20 @@ export const signInProblem = (code?: string): SignInProblem => {
   }
 };
 
+export const resetEmailProblem = (code?: string): SignInProblem => {
+  switch (code) {
+    case "form_identifier_not_found":
+      return {
+        text: "We couldn’t find an account with that email. Check the address or create an account.",
+        kind: "other",
+      };
+    case "too_many_requests":
+      return { text: TOO_MANY, kind: "limited" };
+    default:
+      return { text: "Something went wrong. Please try again.", kind: "other" };
+  }
+};
+
 export type SignUpProblem = { text: string; field: "email" | "password" | "form"; taken?: boolean };
 
 export const signUpProblem = (code?: string): SignUpProblem => {
@@ -54,14 +68,22 @@ export const signUpProblem = (code?: string): SignUpProblem => {
   }
 };
 
-export type CodeProblem = { text: string; kind: "wrong" | "expired" | "limited" | "other" };
+export type CodeProblem = {
+  text: string;
+  kind: "wrong" | "expired" | "limited" | "other";
+  hint?: string;
+};
 
 export const codeProblem = (code?: string): CodeProblem => {
   switch (code) {
     case "form_code_incorrect":
       return { text: "That code isn’t right. Check the email and try again.", kind: "wrong" };
     case "verification_expired":
-      return { text: "This code has expired. We can send you a fresh one.", kind: "expired" };
+      return {
+        text: "This code has expired. We can send you a fresh one.",
+        kind: "expired",
+        hint: "Codes only work for a few minutes.",
+      };
     case "verification_failed":
       return { text: "Too many wrong tries. We can send you a fresh code.", kind: "expired" };
     case "verification_code_rate_limit_exceeded":

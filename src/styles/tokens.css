@@ -21,6 +21,7 @@
   --on-primary: #ffffff;
   --primary-soft: #eae3ff;
   --primary-ink: #4b2fd6;
+  --primary-ink-hover: #3a22b0;
   --frog: #44c764;
   --on-frog: #0e2a16;
   --frog-soft: #ddf6e3;
@@ -48,6 +49,11 @@
   --scan-list: #1e1829;
   --scan-row: #241d33;
   --found-accent: #a8e6b8;
+  --panel-bg: var(--primary);
+  --panel-text: var(--on-primary);
+  --panel-sub: rgb(255 255 255 / 0.9);
+  --panel-dot: rgb(255 255 255 / 0.14);
+  --panel-accent: var(--found-accent);
 
   --cover-1-bg: #6a45f0;
   --cover-1-fg: #ffffff;
@@ -134,12 +140,18 @@
   --on-primary: #ffffff;
   --primary-soft: #2e2547;
   --primary-ink: #cfc2ff;
+  --primary-ink-hover: #e4dcff;
   --frog: #5ad97a;
   --on-frog: #0e2a16;
   --frog-soft: #1d3a27;
   --frog-text: #7ce397;
   --logo: #5ad97a;
   --dino-eye: #f4f0ff;
+  --panel-bg: var(--primary-soft);
+  --panel-text: #f4f0ff;
+  --panel-sub: #d9d2ea;
+  --panel-dot: rgb(255 255 255 / 0.08);
+  --panel-accent: var(--frog);
   --dino-fill: #14111c;
   --danger: #ff6b88;
   --danger-soft: #3a1c26;
@@ -174,12 +186,18 @@
     --on-primary: #ffffff;
     --primary-soft: #2e2547;
     --primary-ink: #cfc2ff;
+    --primary-ink-hover: #e4dcff;
     --frog: #5ad97a;
     --on-frog: #0e2a16;
     --frog-soft: #1d3a27;
     --frog-text: #7ce397;
     --logo: #5ad97a;
     --dino-eye: #f4f0ff;
+    --panel-bg: var(--primary-soft);
+    --panel-text: #f4f0ff;
+    --panel-sub: #d9d2ea;
+    --panel-dot: rgb(255 255 255 / 0.08);
+    --panel-accent: var(--frog);
     --dino-fill: #14111c;
     --danger: #ff6b88;
     --danger-soft: #3a1c26;

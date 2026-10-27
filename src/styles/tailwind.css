@@ -20,6 +20,7 @@
   --color-on-primary: var(--on-primary);
   --color-primary-soft: var(--primary-soft);
   --color-primary-ink: var(--primary-ink);
+  --color-primary-ink-hover: var(--primary-ink-hover);
   --color-frog: var(--frog);
   --color-on-frog: var(--on-frog);
   --color-frog-soft: var(--frog-soft);

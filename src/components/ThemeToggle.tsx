@@ -31,7 +31,7 @@ export const ThemeButton = ({ className }: { className?: string }) => {
     <button
       type="button"
       aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-      className={clsx("lb-btn lb-btn--icon bg-surface shadow-md", className)}
+      className={clsx("lb-btn lb-btn--icon bg-surface shadow-sm", className)}
       onClick={toggle}
     >
       <Icon size={22} aria-hidden="true" />

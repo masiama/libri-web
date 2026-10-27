@@ -1,6 +1,13 @@
 import { expect, test } from "vitest";
 
-import { codeProblem, formatCountdown, safeRedirect, signInProblem, signUpProblem } from "./auth";
+import {
+  codeProblem,
+  formatCountdown,
+  resetEmailProblem,
+  safeRedirect,
+  signInProblem,
+  signUpProblem,
+} from "./auth";
 
 test.each([
   ["/books/9780156012195", "/books/9780156012195"],
@@ -46,6 +53,15 @@ test.each([
 });
 
 test.each([
+  ["form_identifier_not_found", "other"],
+  ["too_many_requests", "limited"],
+  ["something_else", "other"],
+  [undefined, "other"],
+])("resetEmailProblem(%j) is a %s problem", (code, kind) => {
+  expect(resetEmailProblem(code).kind).toBe(kind);
+});
+
+test.each([
   ["form_code_incorrect", "wrong"],
   ["verification_expired", "expired"],
   ["verification_failed", "expired"],
@@ -56,6 +72,11 @@ test.each([
   [undefined, "other"],
 ])("codeProblem(%j) is a %s problem", (code, kind) => {
   expect(codeProblem(code).kind).toBe(kind);
+});
+
+test("only a plain expiry explains how long codes last", () => {
+  expect(codeProblem("verification_expired").hint).toBe("Codes only work for a few minutes.");
+  expect(codeProblem("verification_failed").hint).toBeUndefined();
 });
 
 test.each([
