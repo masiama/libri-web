@@ -11,12 +11,22 @@ import {
   labelClass,
   submitClass,
 } from "#/components/AuthShell";
+import { CodeStep, useShowCodeStep, type ClerkError } from "#/components/CodeStep";
 import { CircleAlert } from "#/components/icons";
 import { BarSpinner } from "#/components/Loaders";
-import { clerkErrorCode, validateRedirectSearch, signInProblem, type SignInProblem } from "#/lib/auth";
+import {
+  clerkErrorCode,
+  validateRedirectSearch,
+  signInProblem,
+  type SignInProblem,
+} from "#/lib/auth";
 import { useLeaveWhenSignedIn } from "#/lib/useLeaveWhenSignedIn";
 
-const SignInForm = () => {
+const needsEmailCode = (signIn: ReturnType<typeof useSignIn>["signIn"]) =>
+  (signIn.status === "needs_client_trust" || signIn.status === "needs_second_factor") &&
+  signIn.supportedSecondFactors.some((factor) => factor.strategy === "email_code");
+
+const SignInForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => void }) => {
   const { signIn } = useSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +39,7 @@ const SignInForm = () => {
     if (problem?.kind === "limited") return;
     setPending(true);
     setProblem(undefined);
+    onSendFailed(undefined);
     const showProblem = (next: SignInProblem) => {
       setProblem(next);
       setPending(false);
@@ -37,6 +48,11 @@ const SignInForm = () => {
     const { error } = await signIn.password({ identifier: email, password });
     if (error) {
       return showProblem(signInProblem(clerkErrorCode(error)));
+    }
+    if (needsEmailCode(signIn)) {
+      const sent = await signIn.mfa.sendEmailCode();
+      onSendFailed(sent.error ?? undefined);
+      return;
     }
     if (signIn.status !== "complete") return showProblem(signInProblem("needs_second_factor"));
     const finalized = await signIn.finalize();
@@ -124,11 +140,30 @@ const SignInForm = () => {
 
 const SignInPage = () => {
   const { redirect } = Route.useSearch();
+  const { signIn } = useSignIn();
+  const [sendError, setSendError] = useState<ClerkError>();
+  const showCode = useShowCodeStep(needsEmailCode(signIn), signIn.status === "complete");
   if (useLeaveWhenSignedIn(redirect)) return null;
+
+  if (showCode) {
+    return (
+      <CodeStep
+        email={signIn.identifier}
+        initialError={sendError}
+        onVerify={async (code) => {
+          const { error } = await signIn.mfa.verifyEmailCode({ code });
+          if (error) return { error };
+          return signIn.status === "complete" ? signIn.finalize() : { error: {} };
+        }}
+        onResend={() => signIn.mfa.sendEmailCode()}
+        onChangeEmail={() => void signIn.reset()}
+      />
+    );
+  }
 
   return (
     <AuthShell title="Welcome back" subtitle="Good to see you again.">
-      <SignInForm />
+      <SignInForm onSendFailed={setSendError} />
       <AuthFooter>
         New to Libri?{" "}
         <Link to="/sign-up" search={(prev) => prev} className="text-primary font-bold underline">

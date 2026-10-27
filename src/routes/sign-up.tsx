@@ -10,9 +10,15 @@ import {
   labelClass,
   submitClass,
 } from "#/components/AuthShell";
+import { CodeStep, useShowCodeStep, type ClerkError } from "#/components/CodeStep";
 import { CircleAlert } from "#/components/icons";
 import { BarSpinner } from "#/components/Loaders";
-import { clerkErrorCode, validateRedirectSearch, signUpProblem, type SignUpProblem } from "#/lib/auth";
+import {
+  clerkErrorCode,
+  validateRedirectSearch,
+  signUpProblem,
+  type SignUpProblem,
+} from "#/lib/auth";
 import { useLeaveWhenSignedIn } from "#/lib/useLeaveWhenSignedIn";
 
 const FieldError = ({ id, problem }: { id: string; problem: SignUpProblem }) => (
@@ -36,7 +42,12 @@ const FieldError = ({ id, problem }: { id: string; problem: SignUpProblem }) => 
   </p>
 );
 
-const SignUpForm = () => {
+const needsEmailCode = (signUp: ReturnType<typeof useSignUp>["signUp"]) =>
+  signUp.status === "missing_requirements" &&
+  signUp.unverifiedFields.includes("email_address") &&
+  !signUp.missingFields.includes("password");
+
+const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => void }) => {
   const { signUp } = useSignUp();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,15 +58,20 @@ const SignUpForm = () => {
     e.preventDefault();
     setPending(true);
     setProblem(undefined);
+    onSendFailed(undefined);
     const showProblem = (next: SignUpProblem) => {
       setProblem(next);
       setPending(false);
     };
 
     const { error } = await signUp.password({ emailAddress: email, password });
-    if (error || signUp.status !== "complete") {
-      return showProblem(signUpProblem(error ? clerkErrorCode(error) : undefined));
+    if (error) return showProblem(signUpProblem(clerkErrorCode(error)));
+    if (needsEmailCode(signUp)) {
+      const sent = await signUp.verifications.sendEmailCode();
+      onSendFailed(sent.error ?? undefined);
+      return;
     }
+    if (signUp.status !== "complete") return showProblem(signUpProblem());
     if ((await signUp.finalize()).error) showProblem(signUpProblem());
   };
 
@@ -129,11 +145,30 @@ const SignUpForm = () => {
 
 const SignUpPage = () => {
   const { redirect } = Route.useSearch();
+  const { signUp } = useSignUp();
+  const [sendError, setSendError] = useState<ClerkError>();
+  const showCode = useShowCodeStep(needsEmailCode(signUp), signUp.status === "complete");
   if (useLeaveWhenSignedIn(redirect)) return null;
+
+  if (showCode) {
+    return (
+      <CodeStep
+        email={signUp.emailAddress}
+        initialError={sendError}
+        onVerify={async (code) => {
+          const { error } = await signUp.verifications.verifyEmailCode({ code });
+          if (error) return { error };
+          return signUp.status === "complete" ? signUp.finalize() : { error: {} };
+        }}
+        onResend={() => signUp.verifications.sendEmailCode()}
+        onChangeEmail={() => void signUp.reset()}
+      />
+    );
+  }
 
   return (
     <AuthShell title="Join Libri" subtitle="Scan a barcode, find the book.">
-      <SignUpForm />
+      <SignUpForm onSendFailed={setSendError} />
       <AuthFooter>
         Already have an account?{" "}
         <Link to="/sign-in" search={(prev) => prev} className="text-primary font-bold underline">
