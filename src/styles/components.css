@@ -869,6 +869,14 @@ body {
 .lb-otp[data-shake="true"] {
   animation: lb-shake 360ms var(--ease-out);
 }
+@keyframes lb-peek-pop {
+  from {
+    transform: translateY(8px);
+  }
+}
+.lb-peek {
+  animation: lb-peek-pop 0.25s ease-out;
+}
 @keyframes lb-shake {
   20%,
   60% {
