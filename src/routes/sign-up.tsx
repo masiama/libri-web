@@ -11,6 +11,7 @@ import {
   submitClass,
 } from "#/components/AuthShell";
 import { CodeStep, useShowCodeStep, type ClerkError } from "#/components/CodeStep";
+import { PeekingDino, type PeekMood } from "#/components/Dino";
 import { CircleAlert } from "#/components/icons";
 import { BarSpinner } from "#/components/Loaders";
 import {
@@ -72,6 +73,8 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [problem, setProblem] = useState<SignUpProblem>();
+  const [focused, setFocused] = useState<"email" | "password">();
+  const [created, setCreated] = useState(false);
 
   const onSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -85,6 +88,7 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
 
     const { error } = await signUp.password({ emailAddress: email, password });
     if (error) return showProblem(signUpProblem(clerkErrorCode(error)));
+    setCreated(true);
     if (needsEmailCode(signUp)) {
       const sent = await signUp.verifications.sendEmailCode();
       onSendFailed(sent.error ?? undefined);
@@ -93,6 +97,20 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
     if (signUp.status !== "complete") return showProblem(signUpProblem());
     if ((await signUp.finalize()).error) showProblem(signUpProblem());
   };
+
+  const mood: PeekMood = created
+    ? "excited"
+    : focused === "email"
+      ? "reading"
+      : focused === "password"
+        ? "shy"
+        : problem
+          ? "confused"
+          : "idle";
+  const focusProps = (field: "email" | "password") => ({
+    onFocus: () => setFocused(field),
+    onBlur: () => setFocused(undefined),
+  });
 
   const problemFor = (field: SignUpProblem["field"]) =>
     problem?.field === field ? problem : undefined;
@@ -105,67 +123,75 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
   });
 
   return (
-    <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
-      {formError && (
-        <div
-          role="alert"
-          className="bg-danger-soft text-danger-text flex items-start gap-2.5 rounded-2xl px-3.5 py-3 text-sm leading-[1.4] font-semibold"
-        >
-          <CircleAlert size={20} strokeWidth={2.4} aria-hidden className="mt-px shrink-0" />
-          <span>{formError.text}</span>
+    <div className="relative mt-14 lg:static lg:mt-0">
+      <PeekingDino
+        mood={mood}
+        className="pointer-events-none absolute -top-19.5 right-7 w-30 [clip-path:inset(0_0_14px_0)] lg:right-8"
+      />
+      <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
+        {formError && (
+          <div
+            role="alert"
+            className="bg-danger-soft text-danger-text flex items-start gap-2.5 rounded-2xl px-3.5 py-3 text-sm leading-[1.4] font-semibold"
+          >
+            <CircleAlert size={20} strokeWidth={2.4} aria-hidden className="mt-px shrink-0" />
+            <span>{formError.text}</span>
+          </div>
+        )}
+        <div className="lb-field">
+          <label htmlFor="sign-up-email" className={labelClass}>
+            Email
+          </label>
+          <input
+            id="sign-up-email"
+            type="email"
+            autoComplete="email"
+            required
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            {...focusProps("email")}
+            {...ariaFor("email")}
+            className={fieldClass}
+          />
+          {emailError && <FieldError id="sign-up-email-error" problem={emailError} />}
         </div>
-      )}
-      <div className="lb-field">
-        <label htmlFor="sign-up-email" className={labelClass}>
-          Email
-        </label>
-        <input
-          id="sign-up-email"
-          type="email"
-          autoComplete="email"
-          required
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          {...ariaFor("email")}
-          className={fieldClass}
-        />
-        {emailError && <FieldError id="sign-up-email-error" problem={emailError} />}
-      </div>
-      <div className="lb-field">
-        <label htmlFor="sign-up-password" className={labelClass}>
-          Password
-        </label>
-        <input
-          id="sign-up-password"
-          type="password"
-          autoComplete="new-password"
-          required
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (passwordError) setProblem(undefined);
-          }}
-          {...ariaFor("password", "sign-up-password-hint")}
-          className={fieldClass}
-        />
-        {passwordError ? (
-          <FieldError id="sign-up-password-error" problem={passwordError} />
-        ) : (
-          <PasswordMeter password={password} />
-        )}
-      </div>
-      <button type="submit" disabled={pending} className={submitClass}>
-        {pending ? (
-          <>
-            <BarSpinner label="Creating account" />
-            Creating account…
-          </>
-        ) : (
-          "Create account"
-        )}
-      </button>
-    </form>
+        <div className="lb-field">
+          <label htmlFor="sign-up-password" className={labelClass}>
+            Password
+          </label>
+          <input
+            id="sign-up-password"
+            type="password"
+            autoComplete="new-password"
+            required
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (passwordError) setProblem(undefined);
+            }}
+            {...focusProps("password")}
+            {...ariaFor("password", "sign-up-password-hint")}
+            className={fieldClass}
+          />
+          {passwordError ? (
+            <FieldError id="sign-up-password-error" problem={passwordError} />
+          ) : (
+            <PasswordMeter password={password} />
+          )}
+        </div>
+        <button type="submit" disabled={pending} className={submitClass}>
+          {pending ? (
+            <>
+              <BarSpinner label="Creating account" />
+              Creating account…
+            </>
+          ) : (
+            "Create account"
+          )}
+        </button>
+      </form>
+    </div>
   );
 };
 

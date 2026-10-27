@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { coverPaletteIndex } from "#/lib/cover";
 
@@ -111,6 +111,96 @@ export const ReadingRex = ({ isbn, coverSrc, className }: ReadingRexProps) => {
       <path d="M405 225h30" fill="none" stroke="currentColor" strokeWidth={24} />
       <path d="M300 135h120" stroke="currentColor" strokeWidth={30} />
       <rect x={335} y={70} width={28} height={14} style={{ fill: "var(--dino-eye)" }} />
+    </svg>
+  );
+};
+
+export type PeekMood = "idle" | "reading" | "shy" | "confused" | "excited";
+
+const strokeEyes: Partial<Record<PeekMood, [d: string, width: number]>> = {
+  shy: ["M326 74q19 14 38 0", 12],
+  confused: ["M332 57l26 26M358 57l-26 26", 12],
+  excited: ["M323 82q22-30 44 0", 14],
+};
+
+const PeekEye = ({ mood, look }: { mood: PeekMood; look: { x: number; y: number } }) => {
+  const stroke = strokeEyes[mood];
+  if (stroke)
+    return (
+      <path
+        d={stroke[0]}
+        fill="none"
+        strokeWidth={stroke[1]}
+        strokeLinecap="round"
+        style={{ stroke: "var(--dino-eye)" }}
+      />
+    );
+  const [gx, gy] = mood === "reading" ? [340, 74] : [345, 70];
+  return (
+    <>
+      <circle cx={345} cy={70} r={16} style={{ fill: "var(--dino-eye)" }} />
+      <circle
+        cx={gx}
+        cy={gy}
+        r={5}
+        style={{
+          fill: "var(--dino-fill)",
+          transform: mood === "idle" ? `translate(${look.x}px, ${look.y}px)` : undefined,
+          transition: "transform 0.1s",
+        }}
+      />
+    </>
+  );
+};
+
+const peekJaw: Partial<Record<PeekMood, React.ReactNode>> = {
+  confused: (
+    <path d="M300 135l30 14l30-14l30 14l30-14" fill="none" stroke="currentColor" strokeWidth={22} />
+  ),
+  excited: <path d="M300 140L425 185" stroke="currentColor" strokeWidth={30} />,
+};
+
+const useLook = (mood: PeekMood) => {
+  const ref = useRef<SVGSVGElement>(null);
+  const [look, setLook] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    if (mood !== "idle" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const onMove = (e: PointerEvent) => {
+      const box = ref.current?.getBoundingClientRect();
+      if (!box) return;
+      const dx = e.clientX - (box.left + box.width * 0.62);
+      const dy = e.clientY - (box.top + box.height * 0.42);
+      const scale = Math.min(1, Math.hypot(dx, dy) / 200) * 8;
+      const angle = Math.atan2(dy, dx);
+      setLook({ x: Math.cos(angle) * scale, y: Math.sin(angle) * scale });
+    };
+    addEventListener("pointermove", onMove);
+    return () => removeEventListener("pointermove", onMove);
+  }, [mood]);
+  return { ref, look };
+};
+
+export const PeekingDino = ({ mood, className }: { mood: PeekMood; className?: string }) => {
+  const { ref, look } = useLook(mood);
+  return (
+    <svg
+      ref={ref}
+      viewBox="230 0 210 165"
+      aria-hidden="true"
+      className={className}
+      style={{ color: "var(--logo)" }}
+    >
+      <g key={mood} className="lb-peek">
+        <path
+          d="M255 170V15h150v155"
+          strokeWidth={30}
+          stroke="currentColor"
+          style={{ fill: "var(--dino-fill)" }}
+        />
+        <path d="M270 30h120v90h-90l-30 30" fill="currentColor" opacity={0.3} />
+        {peekJaw[mood] ?? <path d="M300 135h120" stroke="currentColor" strokeWidth={30} />}
+        <PeekEye mood={mood} look={look} />
+      </g>
     </svg>
   );
 };
