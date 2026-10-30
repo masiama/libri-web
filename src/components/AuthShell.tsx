@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import clsx from "clsx";
 
 import { Barcode } from "#/components/Barcode";
@@ -84,7 +85,11 @@ export const AuthFooter = ({ children }: React.PropsWithChildren) => (
   </p>
 );
 
-export const AuthBanner = ({ id, text, warn }: { id?: string; text: string; warn?: boolean }) => (
+export const AuthBanner = ({
+  id,
+  warn,
+  children,
+}: React.PropsWithChildren<{ id?: string; warn?: boolean }>) => (
   <div
     id={id}
     role="alert"
@@ -94,6 +99,39 @@ export const AuthBanner = ({ id, text, warn }: { id?: string; text: string; warn
     )}
   >
     <CircleAlert size={20} strokeWidth={2.4} aria-hidden className="mt-px shrink-0" />
-    <span>{text}</span>
+    <span>{children}</span>
   </div>
 );
+
+export const FieldError = ({ id, children }: React.PropsWithChildren<{ id: string }>) => (
+  <p
+    id={id}
+    role="alert"
+    className="text-danger-text m-0 flex items-start gap-1.5 text-sm leading-[1.4] font-semibold"
+  >
+    <CircleAlert size={16} strokeWidth={2.4} aria-hidden className="mt-0.5 shrink-0" />
+    <span>{children}</span>
+  </p>
+);
+
+export const LinkedText = ({
+  text,
+  link,
+  to,
+}: {
+  text: string;
+  link?: string;
+  to: React.ComponentProps<typeof Link>["to"];
+}) => {
+  if (!link) return text;
+  const [before, after] = text.split(link);
+  return (
+    <>
+      {before}
+      <Link to={to} search className="text-primary-ink hover:text-primary-ink-hover underline">
+        {link}
+      </Link>
+      {after}
+    </>
+  );
+};

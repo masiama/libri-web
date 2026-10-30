@@ -57,28 +57,37 @@ const Unreadable = ({ fix }: { fix: string }) => (
   </div>
 );
 
-const LookupCard = ({ code, looking, book }: LookupCardProps) => {
-  if (looking) {
-    return (
-      <div className="flex flex-col gap-2.5 rounded-[20px] bg-(--scan-panel) p-3.5">
-        <p className="flex justify-between gap-3 text-sm">
-          <span className="font-semibold">Looking it up…</span>
-          <span className="text-muted font-mono">{formatIsbn(code)}</span>
-        </p>
-        <ScanSweep label="Looking it up" />
-      </div>
-    );
-  }
+const CONFETTI_COLORS = [
+  "var(--frog)",
+  "var(--found-accent)",
+  "var(--on-primary)",
+  "var(--primary-soft)",
+  "var(--frog)",
+  "var(--found-accent)",
+  "var(--on-primary)",
+  "var(--primary-soft)",
+];
 
-  if (!book)
-    return (
-      <p className="rounded-[20px] bg-(--scan-panel) p-3.5 text-sm">
-        No book found for code {code}.
-      </p>
-    );
+const FoundCard = ({ book }: { book: BookDTO }) => {
+  useEffect(() => {
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) navigator.vibrate?.(30);
+  }, []);
 
   return (
     <div className="lb-found">
+      <div aria-hidden className="lb-confetti">
+        {CONFETTI_COLORS.map((color, i) => (
+          <span
+            key={i}
+            style={
+              {
+                "--angle": `${(i * 360) / CONFETTI_COLORS.length}deg`,
+                "--color": color,
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
       <Cover
         isbn={book.isbn}
         title={book.title}
@@ -104,6 +113,29 @@ const LookupCard = ({ code, looking, book }: LookupCardProps) => {
       </Link>
     </div>
   );
+};
+
+const LookupCard = ({ code, looking, book }: LookupCardProps) => {
+  if (looking) {
+    return (
+      <div className="flex flex-col gap-2.5 rounded-[20px] bg-(--scan-panel) p-3.5">
+        <p className="flex justify-between gap-3 text-sm">
+          <span className="font-semibold">Looking it up…</span>
+          <span className="text-muted font-mono">{formatIsbn(code)}</span>
+        </p>
+        <ScanSweep label="Looking it up" />
+      </div>
+    );
+  }
+
+  if (!book)
+    return (
+      <p className="rounded-[20px] bg-(--scan-panel) p-3.5 text-sm">
+        No book found for code {code}.
+      </p>
+    );
+
+  return <FoundCard book={book} />;
 };
 
 const CloseLink = () => {
@@ -361,7 +393,7 @@ const Scan = () => {
               (notFound ? (
                 <NotInCatalogue code={code} />
               ) : (
-                <LookupCard code={code} looking={looking} book={lookup.data} />
+                <LookupCard key={scan.id} code={code} looking={looking} book={lookup.data} />
               ))}
           </output>
           <div role="alert" className={CARD}>

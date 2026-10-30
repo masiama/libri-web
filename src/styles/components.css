@@ -775,6 +775,45 @@ body {
   background: var(--primary);
   color: var(--on-primary);
   box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: lb-found-pop 560ms var(--ease-pop);
+}
+@keyframes lb-found-pop {
+  from {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.lb-confetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+}
+.lb-confetti span {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  margin: -6px 0 0 -4px;
+  border-radius: 2px;
+  background: var(--color);
+  opacity: 0;
+  animation: lb-confetti 900ms var(--ease-out);
+}
+@keyframes lb-confetti {
+  from {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateY(0) scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(-64px) rotate(540deg) scale(1);
+  }
 }
 .lb-found__title {
   font: 800 1.25rem/1.1 var(--font-display);

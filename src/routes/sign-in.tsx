@@ -6,6 +6,7 @@ import {
   AuthBanner,
   AuthFooter,
   AuthShell,
+  LinkedText,
   fieldClass,
   formClass,
   labelClass,
@@ -67,7 +68,9 @@ const SignInForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
   return (
     <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
       {problem && (
-        <AuthBanner id="sign-in-problem" text={problem.text} warn={problem.kind === "limited"} />
+        <AuthBanner id="sign-in-problem" warn={problem.kind === "limited"}>
+          <LinkedText text={problem.text} link={problem.link} to="/forgot-password" />
+        </AuthBanner>
       )}
       <div className="lb-field">
         <label htmlFor="sign-in-email" className={labelClass}>

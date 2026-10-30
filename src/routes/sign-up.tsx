@@ -6,6 +6,8 @@ import {
   AuthBanner,
   AuthFooter,
   AuthShell,
+  FieldError,
+  LinkedText,
   fieldClass,
   formClass,
   labelClass,
@@ -13,7 +15,6 @@ import {
 } from "#/components/AuthShell";
 import { CodeStep, useShowCodeStep, type ClerkError } from "#/components/CodeStep";
 import { PeekingDino, type PeekMood } from "#/components/Dino";
-import { CircleAlert } from "#/components/icons";
 import { BarSpinner } from "#/components/Loaders";
 import { PasswordMeter } from "#/components/PasswordMeter";
 import {
@@ -24,25 +25,10 @@ import {
 } from "#/lib/auth";
 import { useLeaveWhenSignedIn } from "#/lib/useLeaveWhenSignedIn";
 
-const FieldError = ({ id, problem }: { id: string; problem: SignUpProblem }) => (
-  <p
-    id={id}
-    role="alert"
-    className="text-danger-text m-0 flex items-start gap-1.5 text-sm leading-[1.4] font-semibold"
-  >
-    <CircleAlert size={16} strokeWidth={2.4} aria-hidden className="mt-0.5 shrink-0" />
-    <span>
-      {problem.text}
-      {problem.taken && (
-        <>
-          {" "}
-          <Link to="/sign-in" search={(prev) => prev} className="underline">
-            Sign in instead
-          </Link>
-        </>
-      )}
-    </span>
-  </p>
+const SignUpFieldError = ({ id, problem }: { id: string; problem: SignUpProblem }) => (
+  <FieldError id={id}>
+    <LinkedText text={problem.text} link={problem.link} to="/sign-in" />
+  </FieldError>
 );
 
 const needsEmailCode = (signUp: ReturnType<typeof useSignUp>["signUp"]) =>
@@ -114,7 +100,7 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
         className="pointer-events-none absolute -top-19.5 right-7 w-30 [clip-path:inset(0_0_14px_0)] lg:right-8"
       />
       <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
-        {formError && <AuthBanner text={formError.text} />}
+        {formError && <AuthBanner>{formError.text}</AuthBanner>}
         <div className="lb-field">
           <label htmlFor="sign-up-email" className={labelClass}>
             Email
@@ -131,7 +117,7 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
             {...ariaFor("email")}
             className={fieldClass}
           />
-          {emailError && <FieldError id="sign-up-email-error" problem={emailError} />}
+          {emailError && <SignUpFieldError id="sign-up-email-error" problem={emailError} />}
         </div>
         <div className="lb-field">
           <label htmlFor="sign-up-password" className={labelClass}>
@@ -152,7 +138,7 @@ const SignUpForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => vo
             className={fieldClass}
           />
           {passwordError ? (
-            <FieldError id="sign-up-password-error" problem={passwordError} />
+            <SignUpFieldError id="sign-up-password-error" problem={passwordError} />
           ) : (
             <PasswordMeter id="sign-up-password-hint" password={password} />
           )}

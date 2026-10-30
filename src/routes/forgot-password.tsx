@@ -6,9 +6,11 @@ import {
   AuthBanner,
   AuthFooter,
   AuthShell,
+  FieldError,
   fieldClass,
   formClass,
   labelClass,
+  LinkedText,
   submitClass,
 } from "#/components/AuthShell";
 import { CodeStep, type ClerkError } from "#/components/CodeStep";
@@ -29,6 +31,7 @@ const EmailForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => voi
   const [email, setEmail] = useState("");
   const [pending, setPending] = useState(false);
   const [problem, setProblem] = useState<SignInProblem>();
+  const notFound = problem?.kind === "notfound";
 
   const onSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -45,7 +48,9 @@ const EmailForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => voi
 
   return (
     <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
-      {problem && <AuthBanner text={problem.text} warn={problem.kind === "limited"} />}
+      {problem && !notFound && (
+        <AuthBanner warn={problem.kind === "limited"}>{problem.text}</AuthBanner>
+      )}
       <div className="lb-field">
         <label htmlFor="forgot-email" className={labelClass}>
           Email
@@ -57,9 +62,19 @@ const EmailForm = ({ onSendFailed }: { onSendFailed: (error?: ClerkError) => voi
           required
           placeholder="you@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (notFound) setProblem(undefined);
+          }}
+          aria-invalid={notFound}
+          aria-describedby={notFound ? "forgot-email-error" : undefined}
           className={fieldClass}
         />
+        {notFound && (
+          <FieldError id="forgot-email-error">
+            <LinkedText text={problem.text} link={problem.link} to="/sign-up" />
+          </FieldError>
+        )}
       </div>
       <button type="submit" disabled={pending} className={submitClass}>
         {pending ? (
@@ -96,7 +111,7 @@ const NewPasswordForm = () => {
 
   return (
     <form onSubmit={(e) => void onSubmit(e)} className={formClass}>
-      {problem && <AuthBanner text={problem.text} />}
+      {problem && <AuthBanner>{problem.text}</AuthBanner>}
       <div className="lb-field">
         <label htmlFor="forgot-password" className={labelClass}>
           New password

@@ -40,20 +40,21 @@ test.each([
 });
 
 test.each([
-  ["form_identifier_exists", "email", true],
+  ["form_identifier_exists", "email", "Sign in instead"],
   ["form_param_format_invalid", "email", undefined],
   ["form_password_pwned", "password", undefined],
   ["form_password_length_too_short", "password", undefined],
   ["too_many_requests", "form", undefined],
   [undefined, "form", undefined],
-])("signUpProblem(%j) is on the %s field, taken: %j", (code, field, taken) => {
+])("signUpProblem(%j) is on the %s field, link: %j", (code, field, link) => {
   const problem = signUpProblem(code);
   expect(problem.field).toBe(field);
-  expect(problem.taken).toBe(taken);
+  expect(problem.link).toBe(link);
+  if (link) expect(problem.text).toContain(link);
 });
 
 test.each([
-  ["form_identifier_not_found", "other"],
+  ["form_identifier_not_found", "notfound"],
   ["too_many_requests", "limited"],
   ["something_else", "other"],
   [undefined, "other"],
@@ -77,6 +78,17 @@ test.each([
 test("only a plain expiry explains how long codes last", () => {
   expect(codeProblem("verification_expired").hint).toBe("Codes only work for a few minutes.");
   expect(codeProblem("verification_failed").hint).toBeUndefined();
+});
+
+test("the reset email message contains the words that link to sign up", () => {
+  const { text, link } = resetEmailProblem("form_identifier_not_found");
+  expect(link && text.includes(link)).toBe(true);
+});
+
+test("the sign-in mismatch message contains the words that link to the reset page", () => {
+  const { text, link } = signInProblem("form_password_incorrect");
+  expect(link && text.includes(link)).toBe(true);
+  expect(signInProblem("too_many_requests").link).toBeUndefined();
 });
 
 test.each([

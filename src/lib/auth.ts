@@ -13,7 +13,11 @@ export const clerkErrorCode = (error: { code?: string }) =>
 export const validateRedirectSearch = (search: Record<string, unknown>) =>
   typeof search.redirect === "string" ? { redirect: search.redirect } : {};
 
-export type SignInProblem = { text: string; kind: "mismatch" | "limited" | "other" };
+export type SignInProblem = {
+  text: string;
+  kind: "mismatch" | "notfound" | "limited" | "other";
+  link?: string;
+};
 
 export const signInProblem = (code?: string): SignInProblem => {
   switch (code) {
@@ -22,6 +26,7 @@ export const signInProblem = (code?: string): SignInProblem => {
       return {
         text: "That email and password don’t match. Try again or reset your password.",
         kind: "mismatch",
+        link: "reset your password",
       };
     case "too_many_requests":
       return { text: TOO_MANY, kind: "limited" };
@@ -37,7 +42,8 @@ export const resetEmailProblem = (code?: string): SignInProblem => {
     case "form_identifier_not_found":
       return {
         text: "We couldn’t find an account with that email. Check the address or create an account.",
-        kind: "other",
+        kind: "notfound",
+        link: "create an account",
       };
     case "too_many_requests":
       return { text: TOO_MANY, kind: "limited" };
@@ -46,12 +52,16 @@ export const resetEmailProblem = (code?: string): SignInProblem => {
   }
 };
 
-export type SignUpProblem = { text: string; field: "email" | "password" | "form"; taken?: boolean };
+export type SignUpProblem = { text: string; field: "email" | "password" | "form"; link?: string };
 
 export const signUpProblem = (code?: string): SignUpProblem => {
   switch (code) {
     case "form_identifier_exists":
-      return { text: "An account with this email already exists.", field: "email", taken: true };
+      return {
+        text: "An account with this email already exists. Sign in instead",
+        field: "email",
+        link: "Sign in instead",
+      };
     case "form_param_format_invalid":
       return { text: "Enter a valid email address.", field: "email" };
     case "form_password_pwned":
