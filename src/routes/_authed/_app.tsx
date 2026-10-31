@@ -22,7 +22,7 @@ const AppLayout = () => (
         to="/scan"
         className="lb-btn lb-btn--frog min-h-11 pr-4 pl-3 text-[0.9375rem] max-md:ml-auto md:min-h-12 md:pr-5 md:pl-4"
       >
-        <ScanIcon size={20} className="md:size-5.5" />
+        <ScanIcon size={22} />
         <span className="lg:hidden">Scan</span>
         <span className="max-lg:hidden">Scan books</span>
       </Link>

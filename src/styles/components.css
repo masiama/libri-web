@@ -236,7 +236,7 @@ body {
   }
 }
 .lb-wordmark {
-  font: 800 1.1875rem/1 var(--font-display);
+  font: 800 1.125rem/1 var(--font-display);
   letter-spacing: -0.02em;
 }
 

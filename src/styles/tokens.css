@@ -6,7 +6,7 @@
   --surface: #ffffff;
   --surface-2: #f3effd;
   --chrome: var(--surface);
-  --header-bg: rgba(247, 244, 255, 0.94);
+  --header-bg: rgba(247, 244, 255, 0.86);
   --hero-bg: #eae3ff;
   --hero-pattern: #d3c7ff;
 
@@ -132,7 +132,7 @@
   --surface: #211b2d;
   --surface-2: #2a2338;
   --chrome: var(--bg);
-  --header-bg: rgba(20, 17, 28, 0.94);
+  --header-bg: rgba(20, 17, 28, 0.86);
   --hero-bg: #2e2547;
   --hero-pattern: #3b3160;
   --ink: #f4f0ff;
@@ -178,7 +178,7 @@
     --surface: #211b2d;
     --surface-2: #2a2338;
     --chrome: var(--bg);
-    --header-bg: rgba(20, 17, 28, 0.94);
+    --header-bg: rgba(20, 17, 28, 0.86);
     --hero-bg: #2e2547;
     --hero-pattern: #3b3160;
     --ink: #f4f0ff;
