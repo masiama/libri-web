@@ -88,22 +88,22 @@ export const SearchField = ({
             <button
               type="button"
               aria-label="Clear search"
-              className="-mr-1 grid size-(--tap) shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-inherit"
+              className="grid size-(--tap) shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-inherit"
               onClick={() => {
                 setDraft("");
                 push("");
                 input.current?.focus();
               }}
             >
-              <span className="bg-surface-2 grid size-9 place-items-center rounded-full">
-                <X size={16} strokeWidth={2.5} aria-hidden />
+              <span className="bg-surface-2 text-ink grid size-9 place-items-center rounded-full">
+                <X size={18} strokeWidth={2} aria-hidden />
               </span>
             </button>
           ) : (
             shortcut && (
               <kbd
                 aria-hidden="true"
-                className="bg-surface-2 mr-2.5 rounded-xs px-1.75 py-0.75 font-mono text-xs max-lg:hidden"
+                className="bg-surface-2 rounded-xs px-1.75 py-0.75 font-mono text-xs max-lg:hidden"
               >
                 /
               </kbd>

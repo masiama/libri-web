@@ -14,12 +14,12 @@ import { parsePage, parseQuery } from "#/lib/page";
 const PAGE_SIZE = 20;
 
 const NoResults = ({ q }: { q: string }) => (
-  <div className="flex flex-col items-center gap-3 px-4 pt-10 text-center">
+  <div className="flex flex-col items-center gap-3 px-2 pt-8 text-center md:pt-16">
     <ConfusedDino />
-    <h2 className="font-display m-0 text-[1.1875rem] leading-tight font-extrabold wrap-anywhere">
+    <h2 className="font-display m-0 max-w-140 text-[1.1875rem] leading-[1.3] font-extrabold wrap-anywhere md:text-2xl">
       No books match “{q}”
     </h2>
-    <p className="lb-muted m-0 max-w-72.5 text-[0.9375rem]">
+    <p className="lb-muted m-0 max-w-75 text-[0.9375rem] md:max-w-90 md:text-base">
       Check the spelling, or try just the author’s surname. Got the book in hand? Scan its barcode
       instead.
     </p>
@@ -84,12 +84,12 @@ const Library = () => {
                   </Link>
                 ))}
           </div>
-          {lastPage && (
+          {(lastPage || isLoading) && (
             <Pager
               page={page}
               loading={isLoading}
               totalPages={lastPage}
-              totalItems={pageMeta.totalElements ?? 0}
+              totalItems={pageMeta?.totalElements ?? 0}
               pageSize={PAGE_SIZE}
             />
           )}

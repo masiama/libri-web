@@ -89,7 +89,7 @@
   --radius-lg: 22px;
   --radius-xl: 28px;
   --radius-pill: 999px;
-  --radius-cover: 2px 7% 7% 2px;
+  --radius-cover: 2px max(4px, 6%) max(4px, 6%) 2px / 2px max(4px, 4.05%) max(4px, 4.05%) 2px;
 
   --space-1: 4px;
   --space-2: 8px;
