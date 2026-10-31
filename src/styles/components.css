@@ -927,6 +927,7 @@ body {
   touch-action: none;
   perspective: 1100px;
   cursor: grab;
+  text-align: start;
 }
 .lb-book3d[data-dragging="true"] {
   cursor: grabbing;

@@ -220,7 +220,13 @@ export const Book3D = ({ book: { isbn, title, authors } }: { book: BookDTO }) =>
         </div>
       </button>
       {full && loaded.spine && loaded.back && (
-        <p className={clsx("lb-field__hint m-0", open && "invisible")} aria-hidden>
+        <p
+          className={clsx(
+            "lb-field__hint text-primary-ink m-0 leading-normal font-semibold",
+            open && "invisible",
+          )}
+          aria-hidden
+        >
           Drag to turn · <span className="pointer-fine:hidden">tap</span>
           <span className="pointer-coarse:hidden">click</span> to open
         </p>

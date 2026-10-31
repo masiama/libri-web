@@ -15,7 +15,7 @@ import { shareLink } from "#/lib/share";
 
 const COVER_WIDTH = "w-52.5 md:w-70 lg:w-75";
 const TITLE =
-  "lb-title text-2xl leading-[1.2] md:text-[1.875rem] md:leading-[1.18] lg:text-[2.75rem] lg:leading-[1.1] lg:tracking-[-1.2px]";
+  "lb-title text-2xl leading-[1.18] tracking-[-0.4px] wrap-anywhere md:text-[1.875rem] lg:text-[2.75rem]";
 const HERO_BAR = "lb-skeleton-text bg-(--hero-pattern)";
 const PAGE = "lg:px-column flex flex-col lg:gap-5 lg:pt-6 lg:pb-16";
 const STATE_TITLE = "font-display m-0 text-[1.375rem] leading-[1.25] font-extrabold";
@@ -40,12 +40,13 @@ const LibraryLink = ({ className, children }: React.PropsWithChildren<{ classNam
 const BackLink = ({ className }: { className?: string }) => (
   <LibraryLink
     className={clsx(
-      "lb-btn lb-btn--icon md:w-auto md:gap-1.5 md:pr-4.5 md:pl-3 md:text-[0.9375rem]",
+      "lb-btn lb-btn--icon md:w-auto md:gap-1 md:pr-4 md:pl-2.5 md:text-[0.9375rem]",
       className,
     )}
   >
     <ChevronLeft aria-hidden />
-    <span className="max-md:sr-only">Library</span>
+    <span className="lb-sr-only md:hidden">Back to library</span>
+    <span className="max-md:hidden">Library</span>
   </LibraryLink>
 );
 
@@ -57,7 +58,7 @@ const Breadcrumb = () => {
       aria-label="Breadcrumb"
       className="text-muted flex items-center gap-2 text-sm max-lg:hidden"
     >
-      <BackLink className="bg-surface min-h-10 shadow-sm" />
+      <BackLink className="bg-surface shadow-sm" />
       {libraryPage && (
         <>
           <span aria-hidden="true">·</span>
@@ -100,7 +101,7 @@ const ShareButton = ({ title, labelled }: { title: string; labelled?: boolean })
           className="lb-btn lb-btn--lg bg-surface text-ink pr-5 pl-4 shadow-sm"
           onClick={share}
         >
-          <Icon size={20} aria-hidden />
+          <Icon size={22} aria-hidden />
           {copied ? "Copied" : "Share"}
         </button>
       ) : (
@@ -110,7 +111,7 @@ const ShareButton = ({ title, labelled }: { title: string; labelled?: boolean })
           className="lb-btn lb-btn--icon bg-chrome"
           onClick={share}
         >
-          <Icon aria-hidden />
+          <Icon size={22} aria-hidden />
         </button>
       )}
       <output className="lb-sr-only">{copied && "Link copied"}</output>
@@ -145,7 +146,10 @@ const IsbnCard = ({ isbn }: { isbn: string }) => {
     <div className="lb-card flex min-h-16 items-center gap-3 rounded-lg py-2.5 pr-2.5 pl-5">
       <div className="min-w-0 flex-1">
         <div className="text-muted text-[0.8125rem]">ISBN</div>
-        <div ref={text} className="font-mono text-[1.0625rem] font-medium tracking-[0.5px]">
+        <div
+          ref={text}
+          className="font-mono text-[1.0625rem] font-medium tracking-[0.3px] text-balance selection:bg-(--cover-4-bg) selection:text-(--cover-4-fg)"
+        >
           {formatIsbn(isbn)}
         </div>
       </div>
@@ -155,11 +159,14 @@ const IsbnCard = ({ isbn }: { isbn: string }) => {
         data-state={feedback}
         onClick={copy}
       >
-        {copied && <Check size={16} aria-hidden />}
+        {copied && <Check size={16} strokeWidth={2.5} aria-hidden />}
         {copied ? "Copied" : feedback === "failed" ? "Couldn’t copy" : "Copy"}
       </button>
       <output className="lb-sr-only">
-        {copied ? "ISBN copied" : feedback === "failed" && "Couldn’t copy the ISBN"}
+        {copied
+          ? "ISBN copied"
+          : feedback === "failed" &&
+            "Couldn’t copy. The ISBN is selected, so you can copy it yourself."}
       </output>
     </div>
   );
@@ -327,7 +334,7 @@ const BookDetail = () => {
         {book.title}
       </h1>
       {book.authors.length > 0 && (
-        <p className="text-primary-ink m-0 text-[1.0625rem] font-semibold md:text-[1.1875rem] lg:text-xl">
+        <p className="text-primary-ink m-0 text-[1.0625rem] font-semibold wrap-anywhere md:text-[1.1875rem] lg:text-xl">
           {book.authors.join(", ")}
         </p>
       )}
