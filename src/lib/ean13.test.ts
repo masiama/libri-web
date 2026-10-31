@@ -127,6 +127,8 @@ test.each([
   ["bad ISBN-10 check digit", "0261102215"],
   ["ISBN-10 with a wrong X", "026110221X"],
   ["12 digits", "978026110221"],
+  ["14 digits that end in a bad 978 code", "19780261102218"],
+  ["14 digits that start with a bad 978 code", "97802611022189"],
   ["empty", ""],
 ])("has no ISBN-13 for a %s", (_, code) => {
   expect(toIsbn13(code)).toBeNull();
@@ -178,6 +180,8 @@ test.each([
   ["store SKU", "SKU-12345"],
   ["ISBN-10 with a bad check digit", "0261102215"],
   ["12 digits", "978026110221"],
+  ["14 digits that end in a bad 978 code", "19780261102218"],
+  ["14 digits that start with a bad 978 code", "97802611022189"],
   ["empty", ""],
 ])("suggests nothing for a %s", (_, code) => {
   expect(suggestIsbnFix(code)).toBeNull();
