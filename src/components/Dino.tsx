@@ -7,14 +7,17 @@ import { DinoBody } from "./Logo";
 export const ConfusedDino = ({
   size = 140,
   question = true,
+  className,
 }: {
   size?: number;
   question?: boolean;
+  className?: string;
 }) => (
   <svg
     viewBox="-40 -80 540 520"
     width={size}
     height={(size * 520) / 540}
+    className={className}
     aria-hidden="true"
     style={{ color: "var(--logo)" }}
   >
@@ -55,6 +58,73 @@ export const HappyDino = ({
     style={{ color }}
   >
     <DinoBody strokeWidth={30} />
+    <path d="M300 135h120" stroke="currentColor" strokeWidth={30} />
+    <path
+      d="M323 82q22-30 44 0"
+      fill="none"
+      strokeWidth={14}
+      strokeLinecap="round"
+      style={{ stroke: "var(--dino-eye)" }}
+    />
+  </svg>
+);
+
+const SPINES = ["#6A45F0", "#C9BBFF", "#3B2A6B", "#A8E6B8", "#FFD9A8"];
+
+const BOTTOM_SHELF = [
+  [34, 22, 52],
+  [58, 18, 44],
+  [78, 26, 56],
+  [106, 20, 48],
+  [128, 24, 54],
+  [154, 18, 46],
+  [174, 26, 58],
+  [202, 20, 50],
+  [224, 22, 44],
+  [248, 28, 56],
+  [278, 18, 48],
+  [298, 24, 54],
+  [324, 20, 46],
+  [346, 26, 56],
+  [374, 14, 40],
+];
+
+const MIDDLE_SHELF = [
+  [156, 22, 70],
+  [180, 18, 62],
+  [200, 26, 80],
+  [228, 20, 66],
+  [250, 24, 76],
+  [276, 18, 60],
+  [296, 26, 82],
+  [324, 20, 68],
+  [346, 24, 74],
+  [372, 16, 58],
+];
+
+export const ShelfDino = ({ size, className }: { size: number; className?: string }) => (
+  <svg
+    viewBox="-40 -80 540 520"
+    width={size}
+    height={(size * 520) / 540}
+    aria-hidden="true"
+    className={className}
+    style={{ color: "var(--logo)" }}
+  >
+    {BOTTOM_SHELF.map(([x, w, h], i) => (
+      <rect key={`b${i}`} x={x} y={330 - h} width={w} height={h} fill={SPINES[i % 5]} />
+    ))}
+    {MIDDLE_SHELF.map(([x, w, h], i) => (
+      <rect key={`m${i}`} x={x} y={248 - h} width={w} height={h} fill={SPINES[(i + 2) % 5]} />
+    ))}
+    <path
+      d="M240 15h165v330H15v-90h120V135h120V15"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={30}
+    />
+    <path d="M135 255H405" stroke="currentColor" strokeWidth={14} />
+    <path d="M270 30h120v90h-90l-30 30" fill="currentColor" opacity={0.3} />
     <path d="M300 135h120" stroke="currentColor" strokeWidth={30} />
     <path
       d="M323 82q22-30 44 0"

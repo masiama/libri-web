@@ -13,6 +13,7 @@ export {
   Search,
   Share,
   Sun,
+  SwitchCamera,
   X,
 } from "lucide-react";
 
