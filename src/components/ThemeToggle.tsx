@@ -15,7 +15,7 @@ export const ThemeToggle = ({ asMenuItem = false }: { asMenuItem?: boolean }) =>
       aria-checked={theme === "dark"}
       onClick={toggle}
     >
-      <Moon size={22} aria-hidden="true" />
+      <Moon size={20} aria-hidden="true" />
       <span className="flex-1 font-semibold">Dark theme</span>
       <span className="lb-switch__track" aria-hidden="true">
         <span className="lb-switch__knob" />
