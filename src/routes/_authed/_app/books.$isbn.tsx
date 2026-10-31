@@ -118,8 +118,9 @@ const ShareButton = ({ title, labelled }: { title: string; labelled?: boolean })
       {feedback === "failed" && (
         <div
           role="alert"
-          className="lb-toast lb-toast--error fixed bottom-6 left-1/2 z-30 -translate-x-1/2 shadow-md"
+          className="lb-toast lb-toast--error fixed bottom-6 left-1/2 z-30 w-max max-w-[calc(100%-2.5rem)] -translate-x-1/2 shadow-md"
         >
+          <CircleAlert size={22} className="shrink-0" aria-hidden />
           Couldn’t copy the link
         </div>
       )}
