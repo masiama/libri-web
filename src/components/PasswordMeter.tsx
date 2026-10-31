@@ -1,7 +1,7 @@
 import { passwordStrength } from "#/lib/password";
 
 export const PasswordMeter = ({ id, password }: { id: string; password: string }) => {
-  const { level, text } = passwordStrength(password);
+  const { level, text, label } = passwordStrength(password);
   return (
     <>
       <div aria-hidden className="lb-meter mt-1">
@@ -10,6 +10,7 @@ export const PasswordMeter = ({ id, password }: { id: string; password: string }
       <p id={id} data-level={level} className="lb-meter-hint m-0 text-[0.8125rem] font-semibold">
         {text}
       </p>
+      <output className="lb-sr-only">{label}</output>
     </>
   );
 };

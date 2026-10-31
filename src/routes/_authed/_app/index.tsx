@@ -9,6 +9,7 @@ import { Pager } from "#/components/Pager";
 import { SearchField } from "#/components/SearchField";
 import { getGetImageUrl, useListBooks } from "#/generated/api/endpoints";
 import { formatAuthors } from "#/lib/cover";
+import { textLang } from "#/lib/lang";
 import { parsePage, parseQuery } from "#/lib/page";
 
 const PAGE_SIZE = 20;
@@ -79,8 +80,12 @@ const Library = () => {
                       width={107}
                       className="w-full"
                     />
-                    <div className="lb-book__title">{book.title}</div>
-                    <div className="lb-book__author">{formatAuthors(book.authors)}</div>
+                    <div className="lb-book__title" lang={textLang(book.title)}>
+                      {book.title}
+                    </div>
+                    <div className="lb-book__author" lang={textLang(book.authors.join(" "))}>
+                      {formatAuthors(book.authors)}
+                    </div>
                   </Link>
                 ))}
           </div>

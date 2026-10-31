@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { useState, type CSSProperties } from "react";
 
 import { coverPaletteIndex, formatAuthors } from "#/lib/cover";
+import { textLang } from "#/lib/lang";
 
 import { Barcode } from "./Barcode";
 
@@ -63,11 +64,17 @@ export const Cover = ({
       aria-label={alt}
     >
       <div className="lb-cover__body">
-        <div className="lb-cover__title" style={{ fontSize: `max(8px, ${ratio * 100}cqw)` }}>
+        <div
+          className="lb-cover__title"
+          lang={textLang(title)}
+          style={{ fontSize: `max(8px, ${ratio * 100}cqw)` }}
+        >
           {title}
         </div>
         <div className="lb-cover__spacer" />
-        <div className="lb-cover__author">{formatAuthors(authors)}</div>
+        <div className="lb-cover__author" lang={textLang(authors.join(" "))}>
+          {formatAuthors(authors)}
+        </div>
         <div className="lb-cover__barcode" aria-hidden="true">
           <Barcode code={isbn} module={1} height={20} showDigits={false} />
         </div>

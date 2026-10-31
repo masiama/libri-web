@@ -23,6 +23,7 @@ import { useBackClick } from "#/lib/back";
 import { formatAuthors } from "#/lib/cover";
 import { suggestIsbnFix } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
+import { textLang } from "#/lib/lang";
 
 type LookupCardProps = { code: string; looking: boolean; book?: BookDTO; milestone?: number };
 
@@ -144,8 +145,15 @@ const FoundCard = ({ book, milestone }: { book: BookDTO; milestone?: number }) =
       />
       <div className="min-w-0 flex-1">
         <p className="lb-found__title md:text-[1.375rem]">Found!</p>
-        <p className="line-clamp-2 text-[0.9375rem] font-bold md:text-base">{book.title}</p>
-        <p className="truncate text-[0.8125rem] md:text-sm">{formatAuthors(book.authors)}</p>
+        <p
+          className="line-clamp-2 text-[0.9375rem] font-bold md:text-base"
+          lang={textLang(book.title)}
+        >
+          {book.title}
+        </p>
+        <p className="truncate text-[0.8125rem] md:text-sm" lang={textLang(book.authors.join(" "))}>
+          {formatAuthors(book.authors)}
+        </p>
       </div>
       <Link
         to="/books/$isbn"
@@ -341,8 +349,15 @@ const SessionList = ({ rows }: { rows: ScannedBook[] }) => (
               className="md:w-10"
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[0.8125rem] font-semibold md:text-sm">{book.title}</p>
-              <p className="text-muted truncate text-xs">{formatAuthors(book.authors)}</p>
+              <p
+                className="truncate text-[0.8125rem] font-semibold md:text-sm"
+                lang={textLang(book.title)}
+              >
+                {book.title}
+              </p>
+              <p className="text-muted truncate text-xs" lang={textLang(book.authors.join(" "))}>
+                {formatAuthors(book.authors)}
+              </p>
             </div>
           </li>
         ))}

@@ -12,7 +12,7 @@ const AppLayout = () => (
         to="/"
         search={{ page: 1, q: "" }}
         aria-label="Libri library"
-        className="text-ink flex items-center gap-2.5"
+        className="text-ink flex min-h-11 items-center gap-2.5"
       >
         <Logo className="size-7 md:size-8" />
         <span className="lb-wordmark md:text-[1.25rem]">libri</span>

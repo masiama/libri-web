@@ -11,6 +11,7 @@ import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import { useBackClick } from "#/lib/back";
 import { toIsbn13 } from "#/lib/ean13";
 import { formatIsbn } from "#/lib/isbn";
+import { textLang } from "#/lib/lang";
 import { shareLink } from "#/lib/share";
 
 const COVER_WIDTH = "w-52.5 md:w-70 lg:w-75";
@@ -331,11 +332,14 @@ const BookDetail = () => {
       }
       share={<ShareButton title={book.title} />}
     >
-      <h1 ref={focusAfterRetry} tabIndex={-1} className={TITLE}>
+      <h1 ref={focusAfterRetry} tabIndex={-1} lang={textLang(book.title)} className={TITLE}>
         {book.title}
       </h1>
       {book.authors.length > 0 && (
-        <p className="text-primary-ink m-0 text-[1.0625rem] font-semibold wrap-anywhere md:text-[1.1875rem] lg:text-xl">
+        <p
+          lang={textLang(book.authors.join(" "))}
+          className="text-primary-ink m-0 text-[1.0625rem] font-semibold wrap-anywhere md:text-[1.1875rem] lg:text-xl"
+        >
           {book.authors.join(", ")}
         </p>
       )}
