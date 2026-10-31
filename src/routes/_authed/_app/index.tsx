@@ -1,10 +1,11 @@
 import { Link, Navigate, createFileRoute, stripSearchParams } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Cover } from "#/components/Cover";
 import { ConfusedDino } from "#/components/Dino";
 import { ScanIcon } from "#/components/icons";
 import { CoverSkeleton } from "#/components/Loaders";
+import { LoadFailed } from "#/components/LoadFailed";
 import { Pager } from "#/components/Pager";
 import { SearchField } from "#/components/SearchField";
 import { getGetImageUrl, useListBooks } from "#/generated/api/endpoints";
@@ -33,11 +34,17 @@ const NoResults = ({ q }: { q: string }) => (
 
 const Library = () => {
   const { page, q } = Route.useSearch();
-  const { data, isLoading } = useListBooks({
-    filter: q || undefined,
-    page: page - 1,
-    size: PAGE_SIZE,
-  });
+  const { data, isFetching, isError, refetch } = useListBooks(
+    { filter: q || undefined, page: page - 1, size: PAGE_SIZE },
+    { query: { retry: 2 } },
+  );
+  const isLoading = isFetching && !data;
+  const retried = useRef(false);
+  const focusAfterRetry = (el: HTMLButtonElement | null) => {
+    if (!el || !retried.current) return;
+    retried.current = false;
+    el.focus();
+  };
   const [lastMeta, setLastMeta] = useState({ q, meta: data?.page });
   if (data?.page && (lastMeta.q !== q || lastMeta.meta !== data.page))
     setLastMeta({ q, meta: data.page });
@@ -57,7 +64,18 @@ const Library = () => {
         </output>
       </div>
       <SearchField className="md:hidden" />
-      {data?.content?.length === 0 ? (
+      {isError && !data ? (
+        <div role="alert" className="lb-state">
+          <LoadFailed
+            title={q ? "The search didn’t work" : "The library didn’t load"}
+            buttonRef={focusAfterRetry}
+            onRetry={() => {
+              retried.current = true;
+              void refetch();
+            }}
+          />
+        </div>
+      ) : data?.content?.length === 0 ? (
         <NoResults q={q} />
       ) : (
         <>

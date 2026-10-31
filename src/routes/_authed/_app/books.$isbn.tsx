@@ -7,6 +7,7 @@ import { Barcode } from "#/components/Barcode";
 import { Book3D } from "#/components/Book3D";
 import { ConfusedDino, ReadingRex } from "#/components/Dino";
 import { ArrowUpRight, Check, ChevronLeft, CircleAlert, Share } from "#/components/icons";
+import { LoadFailed } from "#/components/LoadFailed";
 import { getGetImageUrl, useGetBookByIsbn } from "#/generated/api/endpoints";
 import { useBackClick } from "#/lib/back";
 import { toIsbn13 } from "#/lib/ean13";
@@ -297,24 +298,15 @@ const BookDetail = () => {
       </StatePage>
     ) : (
       <StatePage alert>
-        <div className="lb-state__icon">
-          <CircleAlert size={30} aria-hidden />
-        </div>
-        <h1 className={STATE_TITLE}>This book didn’t load</h1>
-        <p className={STATE_TEXT}>
-          Something went wrong on our side or with your connection. Try again in a moment.
-        </p>
-        <button
-          ref={focusAfterRetry}
-          type="button"
-          className="lb-btn lb-btn--primary mt-1.5 px-6 text-[0.9375rem]"
-          onClick={() => {
+        <LoadFailed
+          as="h1"
+          title="This book didn’t load"
+          buttonRef={focusAfterRetry}
+          onRetry={() => {
             retried.current = true;
             void refetch();
           }}
-        >
-          Try again
-        </button>
+        />
       </StatePage>
     );
   }
