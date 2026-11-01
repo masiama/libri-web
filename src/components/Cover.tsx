@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { useState, type CSSProperties } from "react";
 
+import type { Size } from "#/lib/book3d";
 import { coverPaletteIndex, formatAuthors } from "#/lib/cover";
 import { textLang } from "#/lib/lang";
 
@@ -13,6 +14,8 @@ type CoverProps = {
   src?: string | null;
   width?: number;
   priority?: boolean;
+  onLoad?: (size: Size) => void;
+  onFail?: () => void;
   className?: string;
 };
 
@@ -23,6 +26,8 @@ export const Cover = ({
   src,
   width = 120,
   priority,
+  onLoad,
+  onFail,
   className,
 }: CoverProps) => {
   const [failedSrc, setFailedSrc] = useState<string>();
@@ -38,7 +43,13 @@ export const Cover = ({
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : undefined}
           decoding="async"
-          onError={() => setFailedSrc(src)}
+          onLoad={(e) =>
+            onLoad?.({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })
+          }
+          onError={() => {
+            setFailedSrc(src);
+            onFail?.();
+          }}
         />
       </div>
     );

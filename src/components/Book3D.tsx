@@ -6,10 +6,12 @@ import {
   type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
+  type SyntheticEvent,
 } from "react";
 
 import { getGetImageUrl } from "#/generated/api/endpoints";
 import type { BookDTO } from "#/generated/api/models";
+import { bookDims, type BookSizes } from "#/lib/book3d";
 import { coverPaletteIndex } from "#/lib/cover";
 
 import { Cover } from "./Cover";
@@ -21,7 +23,6 @@ const MAX_PITCH = 75;
 const TILT_SPEED = 0.3;
 const MAX_TILT = 24;
 const QUARTER_TURN = 90;
-const SPINE_RATIO = 0.2;
 const BACK_OPEN_DELAY = 160;
 const SPINE_CLOSE_DELAY = 140;
 
@@ -29,8 +30,15 @@ const clamp = (v: number, m: number) => Math.max(-m, Math.min(m, v));
 
 export const Book3D = ({ book: { isbn, title, authors } }: { book: BookDTO }) => {
   const [failed, setFailed] = useState<{ spine?: boolean; back?: boolean }>({});
-  const [loaded, setLoaded] = useState<{ spine?: boolean; back?: boolean }>({});
   const full = !failed.spine && !failed.back;
+  const [sizes, setSizes] = useState<BookSizes>({});
+  const [frontFailed, setFrontFailed] = useState(false);
+  const { ratio, depth, backWidth } = bookDims(sizes);
+  const ready = (!!sizes.front || frontFailed) && (!full || (!!sizes.spine && !!sizes.back));
+  const onSide = (side: keyof BookSizes) => (e: SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
+    setSizes((s) => ({ ...s, [side]: { w, h } }));
+  };
 
   const [rot, setRot] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
@@ -128,14 +136,14 @@ export const Book3D = ({ book: { isbn, title, authors } }: { book: BookDTO }) =>
   };
 
   const yaw = (rot.y * Math.PI) / 180;
-  const shadowWidth = Math.abs(Math.cos(yaw)) + SPINE_RATIO * Math.abs(Math.sin(yaw));
+  const shadowWidth = Math.abs(Math.cos(yaw)) + depth * Math.abs(Math.sin(yaw));
 
   const plain: CSSProperties | undefined = full
     ? undefined
     : { background: `var(--cover-${coverPaletteIndex(isbn)}-bg)` };
 
   const group: CSSProperties = {
-    transform: `translate(${open ? `calc(${shift.x}px + var(--w) * 0.48), ${shift.y}px` : "0px, 0px"}) scale(${open ? 0.8 : 1}) rotateX(${rot.x}deg) rotateY(${rot.y}deg)`,
+    transform: `translate(${open ? `calc(${shift.x}px + var(--w) * ${0.4 * (depth + backWidth)}), ${shift.y}px` : "0px, 0px"}) scale(${open ? 0.8 : 1}) rotateX(${rot.x}deg) rotateY(${rot.y}deg)`,
   };
   const hinge = (openDelay: number, closeDelay: number): CSSProperties => ({
     transform: `rotateY(${open ? 0 : -90}deg)`,
@@ -150,76 +158,88 @@ export const Book3D = ({ book: { isbn, title, authors } }: { book: BookDTO }) =>
         onClick={() => setOpen(false)}
         aria-hidden
       />
-      <button
-        ref={button}
-        type="button"
-        className="lb-book3d"
-        style={{ "--shadow-width": shadowWidth } as CSSProperties}
-        data-mode={full ? "full" : "tilt"}
-        data-dragging={dragging}
-        data-open={open}
-        aria-label={
-          full
-            ? open
-              ? `Fold the cover of ${title}`
-              : `Cover of ${title}. Drag or use arrow keys to turn, Enter to unfold.`
-            : `Cover of ${title}`
-        }
-        aria-expanded={full ? open : undefined}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-        onClick={onClick}
-        onDragStart={(e) => e.preventDefault()}
-        onKeyDown={onKeyDown}
-      >
-        <div className="lb-book3d__group" style={group}>
-          <div className="lb-book3d__face lb-book3d__front">
-            <Cover
-              isbn={isbn}
-              title={title}
-              authors={authors}
-              src={getGetImageUrl(isbn, { side: "front" })}
-              className="w-full"
-              priority
-            />
-          </div>
-          <div className="lb-book3d__pages-r" />
-          <div className="lb-book3d__pages-t" />
-          <div className="lb-book3d__pages-b" />
-          <div className="lb-book3d__hinge" style={hinge(0, SPINE_CLOSE_DELAY)}>
-            <div className="lb-book3d__face" style={plain}>
-              {full && (
-                <img
-                  src={getGetImageUrl(isbn, { side: "spine" })}
-                  alt=""
-                  draggable={false}
-                  onLoad={() => setLoaded((l) => ({ ...l, spine: true }))}
-                  onError={() => setFailed((f) => ({ ...f, spine: true }))}
-                />
-              )}
+      <div className="flex min-h-[calc(var(--w)*1.48)] items-center">
+        <button
+          ref={button}
+          type="button"
+          className="lb-book3d"
+          style={
+            {
+              "--shadow-width": shadowWidth,
+              "--ratio": ratio,
+              "--depth": depth,
+              "--back-w": backWidth,
+            } as CSSProperties
+          }
+          data-mode={full ? "full" : "tilt"}
+          data-dragging={dragging}
+          data-open={open}
+          data-ready={ready}
+          aria-label={
+            full
+              ? open
+                ? `Fold the cover of ${title}`
+                : `Cover of ${title}. Drag or use arrow keys to turn, Enter to unfold.`
+              : `Cover of ${title}`
+          }
+          aria-expanded={full ? open : undefined}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onClick={onClick}
+          onDragStart={(e) => e.preventDefault()}
+          onKeyDown={onKeyDown}
+        >
+          <div className="lb-book3d__group" style={group}>
+            <div className="lb-book3d__face lb-book3d__front">
+              <Cover
+                isbn={isbn}
+                title={title}
+                authors={authors}
+                src={getGetImageUrl(isbn, { side: "front" })}
+                className="w-full"
+                priority
+                onLoad={(front) => setSizes((s) => ({ ...s, front }))}
+                onFail={() => setFrontFailed(true)}
+              />
             </div>
-            <div
-              className="lb-book3d__hinge lb-book3d__hinge--back"
-              style={hinge(BACK_OPEN_DELAY, 0)}
-            >
-              <div className="lb-book3d__face lb-book3d__back" style={plain}>
+            <div className="lb-book3d__pages-r" />
+            <div className="lb-book3d__pages-t" />
+            <div className="lb-book3d__pages-b" />
+            <div className="lb-book3d__hinge" style={hinge(0, SPINE_CLOSE_DELAY)}>
+              <div className="lb-book3d__face" style={plain}>
                 {full && (
                   <img
-                    src={getGetImageUrl(isbn, { side: "back" })}
+                    src={getGetImageUrl(isbn, { side: "spine" })}
                     alt=""
                     draggable={false}
-                    onLoad={() => setLoaded((l) => ({ ...l, back: true }))}
-                    onError={() => setFailed((f) => ({ ...f, back: true }))}
+                    onLoad={onSide("spine")}
+                    onError={() => setFailed((f) => ({ ...f, spine: true }))}
                   />
                 )}
               </div>
+              <div
+                className="lb-book3d__hinge lb-book3d__hinge--back"
+                style={hinge(BACK_OPEN_DELAY, 0)}
+              >
+                <div className="lb-book3d__face lb-book3d__back" style={plain}>
+                  {full && (
+                    <img
+                      src={getGetImageUrl(isbn, { side: "back" })}
+                      alt=""
+                      draggable={false}
+                      onLoad={onSide("back")}
+                      onError={() => setFailed((f) => ({ ...f, back: true }))}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </button>
-      {full && loaded.spine && loaded.back && (
+        </button>
+      </div>
+      {full && sizes.spine && sizes.back && (
         <p
           className={clsx(
             "lb-field__hint text-primary-ink m-0 leading-normal font-semibold",

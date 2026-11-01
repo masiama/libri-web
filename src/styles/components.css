@@ -898,11 +898,11 @@ body {
 }
 
 .lb-book3d {
-  --d: calc(var(--w) * 0.2);
+  --d: calc(var(--w) * var(--depth));
   position: relative;
   display: block;
   width: var(--w);
-  aspect-ratio: 1 / 1.48;
+  aspect-ratio: 1 / var(--ratio);
   padding: 0;
   border: 0;
   background: transparent;
@@ -910,6 +910,11 @@ body {
   perspective: 1100px;
   cursor: grab;
   text-align: start;
+  transition: opacity var(--dur);
+}
+.lb-book3d[data-ready="false"] {
+  opacity: 0;
+  pointer-events: none;
 }
 .lb-book3d[data-dragging="true"] {
   cursor: grabbing;
@@ -964,6 +969,8 @@ body {
   opacity: 0;
 }
 .lb-book3d__front .lb-cover {
+  aspect-ratio: auto;
+  height: 100%;
   border-radius: 0;
 }
 .lb-book3d__pages-r,
@@ -1012,7 +1019,7 @@ body {
   transition: transform 620ms var(--ease-out);
 }
 .lb-book3d__hinge--back {
-  width: var(--w);
+  width: calc(var(--w) * var(--back-w));
   transition-duration: 680ms;
 }
 .lb-book3d-scrim {
