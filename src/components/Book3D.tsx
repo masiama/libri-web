@@ -13,6 +13,7 @@ import { getGetImageUrl } from "#/generated/api/endpoints";
 import type { BookDTO } from "#/generated/api/models";
 import { bookDims, type BookSizes } from "#/lib/book3d";
 import { coverPaletteIndex } from "#/lib/cover";
+import { frontEdgeColor } from "#/lib/edgeColor";
 
 import { Cover } from "./Cover";
 
@@ -39,6 +40,18 @@ export const Book3D = ({ book: { isbn, title, authors } }: { book: BookDTO }) =>
     const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
     setSizes((s) => ({ ...s, [side]: { w, h } }));
   };
+
+  const [edge, setEdge] = useState<{ isbn: string; color: string | null }>();
+  useEffect(() => {
+    if (full || !sizes.front) return;
+    let live = true;
+    void frontEdgeColor(getGetImageUrl(isbn, { side: "front" })).then(
+      (color) => live && setEdge({ isbn, color }),
+    );
+    return () => {
+      live = false;
+    };
+  }, [full, sizes.front, isbn]);
 
   const [rot, setRot] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
@@ -140,7 +153,10 @@ export const Book3D = ({ book: { isbn, title, authors } }: { book: BookDTO }) =>
 
   const plain: CSSProperties | undefined = full
     ? undefined
-    : { background: `var(--cover-${coverPaletteIndex(isbn)}-bg)` };
+    : {
+        background:
+          (edge?.isbn === isbn ? edge.color : null) ?? `var(--cover-${coverPaletteIndex(isbn)}-bg)`,
+      };
 
   const group: CSSProperties = {
     transform: `translate(${open ? `calc(${shift.x}px + var(--w) * ${0.4 * (depth + backWidth)}), ${shift.y}px` : "0px, 0px"}) scale(${open ? 0.8 : 1}) rotateX(${rot.x}deg) rotateY(${rot.y}deg)`,
