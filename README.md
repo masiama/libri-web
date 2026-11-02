@@ -1,70 +1,63 @@
-# libri-web
+# Libri Web
 
-User-facing PWA for the Libri book catalog — client-only React SPA built on
-TanStack Router, talking to [`libri-api`](https://github.com/masiama/libri-api).
+User-facing app for the Libri book catalog. Browse books, search, and scan
+barcodes with your camera.
+
+Built with React, Vite, TypeScript, TanStack Router, Tailwind CSS, and Clerk
+authentication.
+
+## Features
+
+- Browse and search the library
+- Book pages with cover, ISBN, barcode, and sharing
+- Barcode scanner with a list of books scanned in the session
+- Sign in, sign up, and password reset
+- Light and dark theme
+- Works on phones, tablets, and desktops
 
 ## Requirements
 
 - Node.js 22+
 - pnpm
+- A running [`libri-api`](https://github.com/masiama/libri-api) instance
+- A Clerk application with a publishable key
 
-## Getting Started
+## Environment variables
+
+Create a local env file from the example:
+
+```bash
+cp .env.example .env
+```
+
+Available variables:
+
+```bash
+VITE_CLERK_PUBLISHABLE_KEY=pk_***
+VITE_API_BASE=http://localhost:8080
+```
+
+`VITE_API_BASE` should point to the host running
+[`libri-api`](https://github.com/masiama/libri-api).
+
+## Getting started
+
+Install dependencies:
 
 ```bash
 pnpm install
+```
+
+Start the development server:
+
+```bash
 pnpm dev
 ```
 
-## Building For Production
+The app runs on [http://localhost:3001](http://localhost:3001).
 
-```bash
-pnpm build
-```
+## Authentication
 
-`build` runs a type-check (`tsc -b`) before invoking `vite build`; run
-`pnpm type-check` on its own to just type-check without building.
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with
-file-based routing. Routes live as files in `src/routes`.
-
-### Adding a route
-
-Add a new file under `src/routes` — the route tree is generated
-automatically by the `tanstackRouter` Vite plugin during `dev`/`build` (or
-manually via `pnpm generate-routes`).
-
-### Adding links
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-More on the `Link` component in the
-[Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Layout
-
-The root layout lives in `src/routes/__root.tsx`. Anything rendered there
-wraps every route via `<Outlet />`.
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-1. Remove the demo pages in `src/routes/demo/` (if present)
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm remove @tailwindcss/vite tailwindcss`
-
-## Learn More
-
-- [TanStack Router documentation](https://tanstack.com/router)
-- [Tailwind CSS documentation](https://tailwindcss.com/)
+`libri-web` signs users in with Clerk and sends a Bearer token to
+[`libri-api`](https://github.com/masiama/libri-api). Signed-out visitors are
+sent to the sign-in page.
