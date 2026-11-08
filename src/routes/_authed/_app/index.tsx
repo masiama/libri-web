@@ -75,14 +75,14 @@ const Library = () => {
             }}
           />
         </div>
-      ) : data?.content?.length === 0 ? (
+      ) : data?.content.length === 0 ? (
         <NoResults q={q} />
       ) : (
         <>
           <div className="lb-grid" aria-busy={isLoading}>
             {isLoading
               ? Array.from({ length: PAGE_SIZE }, (_, i) => <CoverSkeleton key={i} />)
-              : data?.content?.map((book) => (
+              : data?.content.map((book) => (
                   <Link
                     key={book.isbn}
                     to="/books/$isbn"

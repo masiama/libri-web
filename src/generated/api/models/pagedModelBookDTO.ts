@@ -8,6 +8,6 @@ import type { BookDTO } from "./bookDTO.ts";
 import type { PageMetadata } from "./pageMetadata.ts";
 
 export interface PagedModelBookDTO {
-  content?: BookDTO[];
-  page?: PageMetadata;
+  content: BookDTO[];
+  page: PageMetadata;
 }

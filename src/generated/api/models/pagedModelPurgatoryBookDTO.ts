@@ -8,6 +8,6 @@ import type { PageMetadata } from "./pageMetadata.ts";
 import type { PurgatoryBookDTO } from "./purgatoryBookDTO.ts";
 
 export interface PagedModelPurgatoryBookDTO {
-  content?: PurgatoryBookDTO[];
-  page?: PageMetadata;
+  content: PurgatoryBookDTO[];
+  page: PageMetadata;
 }
