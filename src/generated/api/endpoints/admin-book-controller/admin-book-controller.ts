@@ -27,13 +27,25 @@ export const updateBook = async (
   updateBookBody?: UpdateBookBody,
   options?: Parameters<typeof customFetch>[1],
 ): Promise<BookDTO> => {
-  const formData = new FormData();
-  if (updateBookBody?.book !== undefined) {
-    formData.append(`book`, JSON.stringify(updateBookBody.book));
-  }
-  if (updateBookBody?.file !== undefined) {
-    formData.append(`file`, updateBookBody.file);
-  }
+  const formData =
+    updateBookBody === undefined
+      ? undefined
+      : (() => {
+          const formData = new FormData();
+          if (updateBookBody?.book !== undefined) {
+            formData.append(`book`, JSON.stringify(updateBookBody.book));
+          }
+          if (updateBookBody?.file !== undefined) {
+            formData.append(`file`, updateBookBody.file);
+          }
+          if (updateBookBody?.back !== undefined) {
+            formData.append(`back`, updateBookBody.back);
+          }
+          if (updateBookBody?.spine !== undefined) {
+            formData.append(`spine`, updateBookBody.spine);
+          }
+          return formData;
+        })();
 
   return customFetch<BookDTO>(getUpdateBookUrl(isbn), {
     ...options,
@@ -182,13 +194,25 @@ export const createBook = async (
   createBookBody?: CreateBookBody,
   options?: Parameters<typeof customFetch>[1],
 ): Promise<BookDTO> => {
-  const formData = new FormData();
-  if (createBookBody?.book !== undefined) {
-    formData.append(`book`, JSON.stringify(createBookBody.book));
-  }
-  if (createBookBody?.file !== undefined) {
-    formData.append(`file`, createBookBody.file);
-  }
+  const formData =
+    createBookBody === undefined
+      ? undefined
+      : (() => {
+          const formData = new FormData();
+          if (createBookBody?.book !== undefined) {
+            formData.append(`book`, JSON.stringify(createBookBody.book));
+          }
+          if (createBookBody?.file !== undefined) {
+            formData.append(`file`, createBookBody.file);
+          }
+          if (createBookBody?.back !== undefined) {
+            formData.append(`back`, createBookBody.back);
+          }
+          if (createBookBody?.spine !== undefined) {
+            formData.append(`spine`, createBookBody.spine);
+          }
+          return formData;
+        })();
 
   return customFetch<BookDTO>(getCreateBookUrl(), {
     ...options,

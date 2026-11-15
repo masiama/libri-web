@@ -113,7 +113,6 @@ export function usePing<TData = Awaited<ReturnType<typeof ping>>, TError = unkno
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
 export function usePing<TData = Awaited<ReturnType<typeof ping>>, TError = unknown>(
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof ping>>, TError, TData>>;

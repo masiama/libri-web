@@ -15,6 +15,7 @@ export * from "./crawlJobDTOStatus.ts";
 export * from "./crawlJobErrorDTO.ts";
 export * from "./createBookBody.ts";
 export * from "./getImageParams.ts";
+export * from "./getImageSide.ts";
 export * from "./listBooksParams.ts";
 export * from "./listCrawlJobErrorsParams.ts";
 export * from "./listCrawlJobsParams.ts";

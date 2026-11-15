@@ -4,7 +4,8 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { GetImageSide } from "./getImageSide.ts";
 
 export type GetImageParams = {
-  side?: string;
+  side?: GetImageSide;
 };

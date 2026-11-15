@@ -9,4 +9,6 @@ import type { BookDTO } from "./bookDTO.ts";
 export type UpdateBookBody = {
   book: BookDTO;
   file?: Blob | File;
+  back?: Blob | File;
+  spine?: Blob | File;
 };

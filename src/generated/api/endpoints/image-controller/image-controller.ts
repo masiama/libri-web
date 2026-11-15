@@ -142,7 +142,6 @@ export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
 export function useGetImage<TData = Awaited<ReturnType<typeof getImage>>, TError = unknown>(
   isbn: string,
   params?: GetImageParams,

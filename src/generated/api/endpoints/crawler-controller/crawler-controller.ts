@@ -161,7 +161,6 @@ export function useListCrawlJobs<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
 export function useListCrawlJobs<
   TData = Awaited<ReturnType<typeof listCrawlJobs>>,
   TError = unknown,
@@ -521,7 +520,6 @@ export function useListCrawlJobErrors<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
 export function useListCrawlJobErrors<
   TData = Awaited<ReturnType<typeof listCrawlJobErrors>>,
   TError = unknown,

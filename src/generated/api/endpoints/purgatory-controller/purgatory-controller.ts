@@ -269,7 +269,6 @@ export function useListPurgatoryBooks<
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
 export function useListPurgatoryBooks<
   TData = Awaited<ReturnType<typeof listPurgatoryBooks>>,
   TError = unknown,

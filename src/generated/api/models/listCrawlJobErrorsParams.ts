@@ -16,8 +16,6 @@ export type ListCrawlJobErrorsParams = {
    * @minimum 1
    */
   size?: number;
-  /**
-   * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
-   */
+  /** Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported. */
   sort?: string[];
 };

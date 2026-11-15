@@ -141,7 +141,6 @@ export function useListBooks<TData = Awaited<ReturnType<typeof listBooks>>, TErr
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
 export function useListBooks<TData = Awaited<ReturnType<typeof listBooks>>, TError = unknown>(
   params?: ListBooksParams,
   options?: {
@@ -247,7 +246,6 @@ export function useGetBookByIsbn<TData = Awaited<ReturnType<typeof getBookByIsbn
   },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
 export function useGetBookByIsbn<TData = Awaited<ReturnType<typeof getBookByIsbn>>, TError = void>(
   code: string,
   options?: {
