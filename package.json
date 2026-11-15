@@ -48,7 +48,7 @@
     "@vitejs/plugin-react": "^6.3.0",
     "eslint-plugin-react-you-might-not-need-an-effect": "^1.2.0",
     "fast-check": "^4.10.2",
-    "knip": "^6.44.2",
+    "knip": "^6.45.1",
     "orval": "^8.47.0",
     "oxfmt": "^0.77.0",
     "oxlint": "^1.92.0",
