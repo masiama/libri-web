@@ -1,0 +1,11 @@
+{
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "$VITE_API_BASE/api/$1",
+      "env": ["VITE_API_BASE"]
+    },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
