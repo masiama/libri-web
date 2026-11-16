@@ -30,9 +30,187 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
     <meta name="description" content="Scan a book and see if you already own it." />
     <title>Libri</title>
+    <style>
+      #splash {
+        --sp-bg: #f7f4ff;
+        --sp-dot: #dcd2ff;
+        --sp-ink: #1b1530;
+        --sp-muted: #5b5470;
+        --sp-bar: #e2dbf5;
+        --sp-b1: #6a45f0;
+        --sp-b2: #a8e6b8;
+        --sp-b3: #3b2a6b;
+        --sp-glint: #f7f4ff;
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: var(--sp-bg) radial-gradient(var(--sp-dot) 1.4px, transparent 1.6px) 0 0/18px
+          18px;
+        color: var(--sp-ink);
+        font-family: Onest, system-ui, sans-serif;
+      }
+      html[data-theme="dark"] #splash {
+        --sp-bg: #14111c;
+        --sp-dot: #2a2340;
+        --sp-ink: #f4f0ff;
+        --sp-muted: #b9b0ce;
+        --sp-bar: #3a3150;
+        --sp-b1: #7350f7;
+        --sp-b2: #2f9e4e;
+        --sp-b3: #c9bbff;
+        --sp-glint: #14111c;
+      }
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme="light"]) #splash {
+          --sp-bg: #14111c;
+          --sp-dot: #2a2340;
+          --sp-ink: #f4f0ff;
+          --sp-muted: #b9b0ce;
+          --sp-bar: #3a3150;
+          --sp-b1: #7350f7;
+          --sp-b2: #2f9e4e;
+          --sp-b3: #c9bbff;
+          --sp-glint: #14111c;
+        }
+      }
+      #splash .sp-b1 {
+        fill: var(--sp-b1);
+      }
+      #splash .sp-b2 {
+        fill: var(--sp-b2);
+      }
+      #splash .sp-b3 {
+        fill: var(--sp-b3);
+      }
+      #splash .sp-eye {
+        fill: var(--sp-ink);
+      }
+      #splash .sp-glint {
+        fill: var(--sp-glint);
+      }
+      #splash h1 {
+        margin: 24px 0 0;
+        font:
+          800 44px "Unbounded",
+          system-ui,
+          sans-serif;
+        letter-spacing: -1px;
+      }
+      #splash p {
+        margin: 0;
+        font:
+          500 16px Onest,
+          system-ui,
+          sans-serif;
+        color: var(--sp-muted);
+      }
+      .sp-blink {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: sp-blink 4s infinite;
+      }
+      @keyframes sp-blink {
+        0%,
+        93%,
+        100% {
+          transform: scaleY(1);
+        }
+        95.5% {
+          transform: scaleY(0.1);
+        }
+      }
+      .sp-sweep {
+        position: relative;
+        width: 168px;
+        height: 20px;
+        margin-top: 40px;
+        border-radius: 6px;
+        overflow: hidden;
+        color: var(--sp-bar);
+        background-image: repeating-linear-gradient(
+          90deg,
+          currentColor 0 2px,
+          transparent 2px 4px,
+          currentColor 4px 5px,
+          transparent 5px 8px,
+          currentColor 8px 11px,
+          transparent 11px 13px
+        );
+      }
+      .sp-sweep i {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        border-radius: 2px;
+        background: #44c764;
+        box-shadow: 0 0 12px 3px rgba(68, 199, 100, 0.6);
+        animation: sp-x 1.6s ease-in-out infinite;
+      }
+      @keyframes sp-x {
+        0%,
+        100% {
+          left: 0;
+        }
+        50% {
+          left: calc(100% - 3px);
+        }
+      }
+      .sp-vh {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .sp-blink {
+          animation: none;
+        }
+        .sp-sweep i {
+          animation: none;
+          left: calc(50% - 1.5px);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="splash">
+        <svg viewBox="-20 -5 460 505" width="214" height="233" aria-hidden="true">
+          <rect x="30" y="364" width="360" height="38" rx="7" class="sp-b1" />
+          <rect x="56" y="371" width="10" height="24" rx="2" fill="#fff" opacity=".45" />
+          <rect x="72" y="371" width="4" height="24" rx="2" fill="#fff" opacity=".45" />
+          <rect x="-6" y="404" width="392" height="40" rx="7" class="sp-b2" />
+          <rect x="340" y="411" width="10" height="26" rx="2" fill="#fff" opacity=".45" />
+          <rect x="356" y="411" width="4" height="26" rx="2" fill="#fff" opacity=".45" />
+          <rect x="14" y="446" width="414" height="42" rx="7" class="sp-b3" />
+          <rect x="40" y="453" width="10" height="28" rx="2" fill="#fff" opacity=".45" />
+          <rect x="56" y="453" width="4" height="28" rx="2" fill="#fff" opacity=".45" />
+          <path
+            d="M240 15h165v330H15v-90h120V135h120V15"
+            fill="none"
+            stroke="#3FB560"
+            stroke-width="30"
+          />
+          <path d="M150 150h120v90H150z" fill="#3FB560" opacity=".55" />
+          <path d="M270 30h120v90h-90l-30 30" fill="#3FB560" opacity=".3" />
+          <path d="M300 135h120" stroke="#3FB560" stroke-width="30" />
+          <g class="sp-blink">
+            <circle class="sp-eye" cx="345" cy="70" r="16" />
+            <circle class="sp-glint" cx="352" cy="63" r="5" />
+          </g>
+        </svg>
+        <h1>Libri</h1>
+        <p>Scan a barcode, find the book.</p>
+        <div class="sp-sweep" role="status"><i></i><span class="sp-vh">Loading Libri</span></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
