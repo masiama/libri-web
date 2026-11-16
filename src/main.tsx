@@ -11,7 +11,8 @@ if (!PUBLISHABLE_KEY) throw new Error("Add your Clerk Publishable Key to the .en
 const queryClient = new QueryClient();
 const rootElement = document.getElementById("app")!;
 
-if (!rootElement.innerHTML) {
+if (!rootElement.dataset.mounted) {
+  rootElement.dataset.mounted = "true";
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
